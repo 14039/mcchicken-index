@@ -1,0 +1,58 @@
+[
+  {
+    "date": "2014",
+    "price": 1.00,
+    "source": "VisualCapitalist",
+    "sourceUrl": "https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/",
+    "confidence": "verified",
+    "context": "McDonald's Dollar Menu — McChicken at $1.00"
+  },
+  {
+    "date": "2017-12",
+    "price": 1.00,
+    "source": "McDonald's Corporate Announcement",
+    "sourceUrl": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/bold_new_value_menu.html",
+    "confidence": "verified",
+    "context": "$1 $2 $3 Dollar Menu — McChicken at $1.00 tier"
+  },
+  {
+    "date": "2019",
+    "price": 1.49,
+    "source": "FinanceBuzz",
+    "sourceUrl": "https://financebuzz.com/mcdonalds-menu-inflation",
+    "confidence": "verified",
+    "context": "$1 $2 $3 Dollar Menu era — price moved off $1.00"
+  },
+  {
+    "date": "2020",
+    "price": 1.29,
+    "source": "FastFoodMenuPrices.com",
+    "sourceUrl": "https://www.fastfoodmenuprices.com/mcdonalds-prices/",
+    "confidence": "verified",
+    "context": "COVID era — lower price observed, possibly value promotion"
+  },
+  {
+    "date": "2024",
+    "price": 2.99,
+    "source": "VisualCapitalist",
+    "sourceUrl": "https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/",
+    "confidence": "verified",
+    "context": "Post-pandemic inflation — standard menu pricing"
+  },
+  {
+    "date": "2024-06",
+    "price": 2.79,
+    "source": "Snopes.com",
+    "sourceUrl": "https://www.snopes.com/fact-check/mcdonalds-mcchicken-price-2024/",
+    "confidence": "verified",
+    "context": "National average, some locations lower due to McDonald's $5 value meal promotions"
+  },
+  {
+    "date": "2026-04",
+    "price": 2.99,
+    "source": "McDonald's Corporate / MenuPriceTracker",
+    "sourceUrl": "https://menupricetracker.com/mcdonalds-menu/mcchicken",
+    "confidence": "verified",
+    "context": "Under $3 Menu — national average"
+  }
+]

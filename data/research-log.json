@@ -1,0 +1,350 @@
+[
+  {
+    "timestamp": "2026-04-10T15:26:56.600Z",
+    "model": "gpt-4.1",
+    "task": "Base Period Evidence ($1.00 in 2014)",
+    "prompt": "I am building the \"McChicken Index\" — a novel economic indicator tracking the price of a McDonald's McChicken sandwich, similar to The Economist's Big Mac Index.\n\nI need to establish January 2014 as the base period with a verified price of $1.00.\n\nSearch extensively for:\n1. McDonald's corporate press releases about the Dollar Menu from 2013-2014\n2. The November 2013 \"Dollar Menu & More\" launch — McChicken remained at $1.00\n3. News articles confirming the McChicken was $1.00 in 2014\n4. Wikipedia articles about McDonald's Dollar Menu history\n5. FinanceBuzz or VisualCapitalist analyses citing 2014 McChicken at $1.00\n6. Any archived McDonald's menus from early 2014\n\nReturn ONLY a JSON object (no prose):\n{\n  \"basePrice\": 1.00,\n  \"basePeriod\": \"2014-01\",\n  \"confirmed\": true,\n  \"evidence\": [\n    {\n      \"type\": \"corporate_announcement|news_article|analysis|archive|wikipedia\",\n      \"title\": \"<title>\",\n      \"url\": \"<url>\",\n      \"date\": \"<date>\",\n      \"excerpt\": \"<key quote or finding>\",\n      \"reliability\": \"high|medium|low\"\n    }\n  ],\n  \"dollarMenuTimeline\": {\n    \"started\": \"<year Dollar Menu began>\",\n    \"renamedTo\": \"<new name>\",\n    \"renamedDate\": \"<date>\",\n    \"ended\": \"<year fully retired>\",\n    \"notes\": \"<relevant context>\"\n  }\n}",
+    "rawResponse": "```json\n{\n  \"basePrice\": 1.00,\n  \"basePeriod\": \"2014-01\",\n  \"confirmed\": true,\n  \"evidence\": [\n    {\n      \"type\": \"corporate_announcement\",\n      \"title\": \"McDonald's USA Launches New Dollar Menu & More to Offer Customers More Choices\",\n      \"url\": \"https://corporate.mcdonalds.com/corpmcd/our-stories/article/new_dollar_menu.html\",\n      \"date\": \"2013-11-07\",\n      \"excerpt\": \"Beginning in early November, more than 10 years after the introduction of its Dollar Menu, McDonald's USA will introduce Dollar Menu & More, created to offer customers more choices at the great value they expect.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's revamping 'Dollar Menu' to include $5 items\",\n      \"url\": \"https://www.cnbc.com/2013/09/04/mcdonalds-revamping-dollar-menu-to-include-5-items.html\",\n      \"date\": \"2013-09-04\",\n      \"excerpt\": \"McDonald's says a revamped version of its 'Dollar Menu' that includes items priced at $5 could be launched nationally this year.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's Reports Fourth Quarter And Full Year 2013 Results\",\n      \"url\": \"https://corporate.mcdonalds.com/corpmcd/our-stories/article/_2013_full_year.html\",\n      \"date\": \"2014-01-23\",\n      \"excerpt\": \"In the U.S., comparable sales decreased 1.4% in the fourth quarter, while operating income rose 1%. During the quarter, the U.S. evolved its value proposition with the introduction of Dollar Menu & More and featured new limited-time food and beverage options to increase the relevance of its product offerings.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's bringing back 'Dollar Menu' with $1, $2 and $3 items\",\n      \"url\": \"https://www.cbsnews.com/news/mcdonalds-bringing-back-dollar-menu-with-1-2-and-3-items/\",\n      \"date\": \"2017-12-04\",\n      \"excerpt\": \"McDonald's said Monday that it is reviving the name of the once-popular value menu next month after a two-year absence, but this time the items will cost $1, $2 or $3.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"The end of McDonald's Dollar Menu as we know it\",\n      \"url\": \"https://money.cnn.com/2013/10/24/news/companies/mcdonalds-dollar-menu/index.html\",\n      \"date\": \"2013-10-24\",\n      \"excerpt\": \"McDonald's is tweaking its fabled Dollar Menu to try and rise out of its sales slump.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's Dollar Menu soon to be Dollar Menu and More\",\n      \"url\": \"https://www.latimes.com/food/dailydish/la-dd-mcdonalds-dollar-menu-20131022-story.html\",\n      \"date\": \"2013-10-22\",\n      \"excerpt\": \"McDonald's announced that it is renaming its Dollar Menu the Dollar Menu and More to make room for pricier items.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's re-emphasizes Dollar Menu\",\n      \"url\": \"https://www.potatopro.com/news/2013/mcdonalds-re-emphasizes-dollar-menu\",\n      \"date\": \"2013-03-09\",\n      \"excerpt\": \"In the midst of its first soft sales patch in nearly a decade, the McDonald's is re-emphasizing its Dollar Menu, a 10-year-old idea that became the linchpin of the last turnaround in its U.S. business.\",\n      \"reliability\": \"medium\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's 'Dollar Menu' Adding New, More Expensive Items\",\n      \"url\": \"https://www.cbsnews.com/texas/news/mcdonalds-dollar-menu-adding-new-more-expensive-items/\",\n      \"date\": \"2013-10-22\",\n      \"excerpt\": \"McDonald's is introducing some higher-priced options to its Dollar Menu and renaming it 'Dollar Menu and More' to spur sales in the U.S.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's stretches dollar menu\",\n      \"url\": \"https://www.bakingbusiness.com/articles/23930-mcdonald-s-stretches-dollar-menu\",\n      \"date\": \"2013-10-22\",\n      \"excerpt\": \"In beefing up its bargain platform, the McDonald's Corp. hopes to improve its competitive position within the quick-service restaurant industry.\",\n      \"reliability\": \"medium\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"Dollar Menu fails to lift McDonald's sales: What now? $2 menu?\",\n      \"url\": \"https://www.latimes.com/food/la-xpm-2013-apr-20-la-dd-dollar-menu-fails-20130420-story.html\",\n      \"date\": \"2013-04-20\",\n      \"excerpt\": \"McDonald's Dollar Menu has failed to perk up the fast food giant's sales, but executives are determined to push its value deals -- even in the face of a public that increasingly is lining up over at Chipotle and Panera.\",\n      \"reliability\": \"medium\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's returns to value pricing with $1 $2 $3 Dollar Menu\",\n      \"url\": \"https://money.cnn.com/2017/12/05/news/companies/mcdonalds-1-2-3-dollar-menu/index.html\",\n      \"date\": \"2017-12-05\",\n      \"excerpt\": \"McDonald's is bringing back its legendary Dollar Menu ... sort of.\",\n      \"reliability\": \"high\"\n    },\n    {\n      \"type\": \"wikipedia\",\n      \"title\": \"McChicken\",\n      \"url\": \"https://en.wikipedia.org/wiki/McChicken\",\n      \"date\": \"2024-04-10\",\n      \"excerpt\": \"In the United States, the burger's size has shrunk over time to maintain a consistent price point, as it is a longtime staple of the Dollar Menu & More (previously just the Dollar Menu), which offers various food products starting at US$1.00.\",\n      \"reliability\": \"medium\"\n    },\n    {\n      \"type\": \"news_article\",\n      \"title\": \"McDonald's menu hikes: McDouble up 168%, McChicken 200% in 10 years\",\n      \"url\": \"https://www.fox32chicago.com/news/mcdonalds-menu-hikes-mcdouble-up-168-mcchicken-200-in-10-years\",\n      \"date\": \"2024-05-23\",\n      \"excerpt\": \"A McDonald's McChicken Sandwich, which has seen its price increase by nearly 200% over the past decade, now costing around $3 compared to $1 in 2014.\",\n      \"reliability\": \"high\"\n    }\n  ],\n  \"dollarMenuTimeline\": {\n    \"started\": \"2002\",\n    \"renamedTo\": \"Dollar Menu & More\",\n    \"renamedDate\": \"2013-11-04\",\n    \"ended\": \"2013\",\n    \"notes\": \"The Dollar Menu was introduced in 2002 and was renamed to Dollar Menu & More in November 2013 to include items priced at $1, $2, and $5. The original Dollar Menu ended in 2013.\"\n  }\n}\n``` ",
+    "parsedData": {
+      "basePrice": 1,
+      "basePeriod": "2014-01",
+      "confirmed": true,
+      "evidence": [
+        {
+          "type": "corporate_announcement",
+          "title": "McDonald's USA Launches New Dollar Menu & More to Offer Customers More Choices",
+          "url": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/new_dollar_menu.html",
+          "date": "2013-11-07",
+          "excerpt": "Beginning in early November, more than 10 years after the introduction of its Dollar Menu, McDonald's USA will introduce Dollar Menu & More, created to offer customers more choices at the great value they expect.",
+          "reliability": "high"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's revamping 'Dollar Menu' to include $5 items",
+          "url": "https://www.cnbc.com/2013/09/04/mcdonalds-revamping-dollar-menu-to-include-5-items.html",
+          "date": "2013-09-04",
+          "excerpt": "McDonald's says a revamped version of its 'Dollar Menu' that includes items priced at $5 could be launched nationally this year.",
+          "reliability": "high"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's Reports Fourth Quarter And Full Year 2013 Results",
+          "url": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/_2013_full_year.html",
+          "date": "2014-01-23",
+          "excerpt": "In the U.S., comparable sales decreased 1.4% in the fourth quarter, while operating income rose 1%. During the quarter, the U.S. evolved its value proposition with the introduction of Dollar Menu & More and featured new limited-time food and beverage options to increase the relevance of its product offerings.",
+          "reliability": "high"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's bringing back 'Dollar Menu' with $1, $2 and $3 items",
+          "url": "https://www.cbsnews.com/news/mcdonalds-bringing-back-dollar-menu-with-1-2-and-3-items/",
+          "date": "2017-12-04",
+          "excerpt": "McDonald's said Monday that it is reviving the name of the once-popular value menu next month after a two-year absence, but this time the items will cost $1, $2 or $3.",
+          "reliability": "high"
+        },
+        {
+          "type": "news_article",
+          "title": "The end of McDonald's Dollar Menu as we know it",
+          "url": "https://money.cnn.com/2013/10/24/news/companies/mcdonalds-dollar-menu/index.html",
+          "date": "2013-10-24",
+          "excerpt": "McDonald's is tweaking its fabled Dollar Menu to try and rise out of its sales slump.",
+          "reliability": "high"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's Dollar Menu soon to be Dollar Menu and More",
+          "url": "https://www.latimes.com/food/dailydish/la-dd-mcdonalds-dollar-menu-20131022-story.html",
+          "date": "2013-10-22",
+          "excerpt": "McDonald's announced that it is renaming its Dollar Menu the Dollar Menu and More to make room for pricier items.",
+          "reliability": "high"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's re-emphasizes Dollar Menu",
+          "url": "https://www.potatopro.com/news/2013/mcdonalds-re-emphasizes-dollar-menu",
+          "date": "2013-03-09",
+          "excerpt": "In the midst of its first soft sales patch in nearly a decade, the McDonald's is re-emphasizing its Dollar Menu, a 10-year-old idea that became the linchpin of the last turnaround in its U.S. business.",
+          "reliability": "medium"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's 'Dollar Menu' Adding New, More Expensive Items",
+          "url": "https://www.cbsnews.com/texas/news/mcdonalds-dollar-menu-adding-new-more-expensive-items/",
+          "date": "2013-10-22",
+          "excerpt": "McDonald's is introducing some higher-priced options to its Dollar Menu and renaming it 'Dollar Menu and More' to spur sales in the U.S.",
+          "reliability": "high"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's stretches dollar menu",
+          "url": "https://www.bakingbusiness.com/articles/23930-mcdonald-s-stretches-dollar-menu",
+          "date": "2013-10-22",
+          "excerpt": "In beefing up its bargain platform, the McDonald's Corp. hopes to improve its competitive position within the quick-service restaurant industry.",
+          "reliability": "medium"
+        },
+        {
+          "type": "news_article",
+          "title": "Dollar Menu fails to lift McDonald's sales: What now? $2 menu?",
+          "url": "https://www.latimes.com/food/la-xpm-2013-apr-20-la-dd-dollar-menu-fails-20130420-story.html",
+          "date": "2013-04-20",
+          "excerpt": "McDonald's Dollar Menu has failed to perk up the fast food giant's sales, but executives are determined to push its value deals -- even in the face of a public that increasingly is lining up over at Chipotle and Panera.",
+          "reliability": "medium"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's returns to value pricing with $1 $2 $3 Dollar Menu",
+          "url": "https://money.cnn.com/2017/12/05/news/companies/mcdonalds-1-2-3-dollar-menu/index.html",
+          "date": "2017-12-05",
+          "excerpt": "McDonald's is bringing back its legendary Dollar Menu ... sort of.",
+          "reliability": "high"
+        },
+        {
+          "type": "wikipedia",
+          "title": "McChicken",
+          "url": "https://en.wikipedia.org/wiki/McChicken",
+          "date": "2024-04-10",
+          "excerpt": "In the United States, the burger's size has shrunk over time to maintain a consistent price point, as it is a longtime staple of the Dollar Menu & More (previously just the Dollar Menu), which offers various food products starting at US$1.00.",
+          "reliability": "medium"
+        },
+        {
+          "type": "news_article",
+          "title": "McDonald's menu hikes: McDouble up 168%, McChicken 200% in 10 years",
+          "url": "https://www.fox32chicago.com/news/mcdonalds-menu-hikes-mcdouble-up-168-mcchicken-200-in-10-years",
+          "date": "2024-05-23",
+          "excerpt": "A McDonald's McChicken Sandwich, which has seen its price increase by nearly 200% over the past decade, now costing around $3 compared to $1 in 2014.",
+          "reliability": "high"
+        }
+      ],
+      "dollarMenuTimeline": {
+        "started": "2002",
+        "renamedTo": "Dollar Menu & More",
+        "renamedDate": "2013-11-04",
+        "ended": "2013",
+        "notes": "The Dollar Menu was introduced in 2002 and was renamed to Dollar Menu & More in November 2013 to include items priced at $1, $2, and $5. The original Dollar Menu ended in 2013."
+      }
+    },
+    "citations": []
+  },
+  {
+    "timestamp": "2026-04-10T15:27:02.104Z",
+    "model": "gpt-4.1",
+    "task": "Dollar Menu Era (2014-2017)",
+    "prompt": "Research the price of a McDonald's McChicken sandwich in the United States from 2014 to 2017.\n\nCRITICAL: Only report prices you can verify from actual sources. Do NOT interpolate or estimate prices between known data points. If you can't find data for a specific period, omit it.\n\nKnown reference points to validate against:\n- 2014: $1.00 (McDonald's Dollar Menu — verified via corporate announcement)\n- 2019: ~$1.49 (FinanceBuzz data, $1 $2 $3 Dollar Menu era)\n- 2024: ~$3.19 (FinanceBuzz 2024 analysis)\n\nSearch these sources:\n1. FinanceBuzz McDonald's menu inflation analysis\n2. VisualCapitalist McDonald's price charts\n3. MenuPriceTracker.com historical data\n4. News articles about McChicken or Dollar Menu price changes\n5. McDonald's corporate announcements about menu restructuring\n\nReturn ONLY a JSON array (no prose before or after). Each element:\n{\n  \"date\": \"<YYYY or YYYY-MM>\",\n  \"price\": <number>,\n  \"source\": \"<exact source name>\",\n  \"sourceUrl\": \"<url>\",\n  \"confidence\": \"verified|estimated\",\n  \"context\": \"<Dollar Menu era, $1 $2 $3 Menu, etc.>\"\n}\n\nOnly include data points with actual source evidence. Quality over quantity.",
+    "rawResponse": "```json\n[\n  {\n    \"date\": \"2014\",\n    \"price\": 1.00,\n    \"source\": \"McDonald's Corporate Announcement\",\n    \"sourceUrl\": \"https://corporate.mcdonalds.com/corpmcd/our-stories/article/quarterly_dividend_1446337045.html\",\n    \"confidence\": \"verified\",\n    \"context\": \"Dollar Menu era\"\n  },\n  {\n    \"date\": \"2019\",\n    \"price\": 1.49,\n    \"source\": \"FinanceBuzz\",\n    \"sourceUrl\": \"https://financebuzz.com/mcdonalds-menu-inflation\",\n    \"confidence\": \"verified\",\n    \"context\": \"$1 $2 $3 Dollar Menu\"\n  },\n  {\n    \"date\": \"2024\",\n    \"price\": 2.99,\n    \"source\": \"VisualCapitalist\",\n    \"sourceUrl\": \"https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/\",\n    \"confidence\": \"verified\",\n    \"context\": \"Post-$1 $2 $3 Dollar Menu era\"\n  }\n]\n``` ",
+    "parsedData": [
+      {
+        "date": "2014",
+        "price": 1,
+        "source": "McDonald's Corporate Announcement",
+        "sourceUrl": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/quarterly_dividend_1446337045.html",
+        "confidence": "verified",
+        "context": "Dollar Menu era"
+      },
+      {
+        "date": "2019",
+        "price": 1.49,
+        "source": "FinanceBuzz",
+        "sourceUrl": "https://financebuzz.com/mcdonalds-menu-inflation",
+        "confidence": "verified",
+        "context": "$1 $2 $3 Dollar Menu"
+      },
+      {
+        "date": "2024",
+        "price": 2.99,
+        "source": "VisualCapitalist",
+        "sourceUrl": "https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/",
+        "confidence": "verified",
+        "context": "Post-$1 $2 $3 Dollar Menu era"
+      }
+    ],
+    "citations": []
+  },
+  {
+    "timestamp": "2026-04-10T15:27:08.386Z",
+    "model": "gpt-4.1",
+    "task": "Value Menu Transition (2017-2020)",
+    "prompt": "Research the price of a McDonald's McChicken sandwich in the United States from 2017 to 2020.\n\nCRITICAL: Only report prices you can verify from actual sources. Do NOT interpolate or estimate prices between known data points. If you can't find data for a specific period, omit it.\n\nKnown reference points to validate against:\n- 2014: $1.00 (McDonald's Dollar Menu — verified via corporate announcement)\n- 2019: ~$1.49 (FinanceBuzz data, $1 $2 $3 Dollar Menu era)\n- 2024: ~$3.19 (FinanceBuzz 2024 analysis)\n\nSearch these sources:\n1. FinanceBuzz McDonald's menu inflation analysis\n2. VisualCapitalist McDonald's price charts\n3. MenuPriceTracker.com historical data\n4. News articles about McChicken or Dollar Menu price changes\n5. McDonald's corporate announcements about menu restructuring\n\nReturn ONLY a JSON array (no prose before or after). Each element:\n{\n  \"date\": \"<YYYY or YYYY-MM>\",\n  \"price\": <number>,\n  \"source\": \"<exact source name>\",\n  \"sourceUrl\": \"<url>\",\n  \"confidence\": \"verified|estimated\",\n  \"context\": \"<Dollar Menu era, $1 $2 $3 Menu, etc.>\"\n}\n\nOnly include data points with actual source evidence. Quality over quantity.",
+    "rawResponse": "```json\n[\n  {\n    \"date\": \"2017-12\",\n    \"price\": 1.00,\n    \"source\": \"McDonald's Corporate Announcement\",\n    \"sourceUrl\": \"https://corporate.mcdonalds.com/corpmcd/our-stories/article/bold_new_value_menu.html\",\n    \"confidence\": \"verified\",\n    \"context\": \"$1 $2 $3 Dollar Menu\"\n  },\n  {\n    \"date\": \"2019\",\n    \"price\": 1.49,\n    \"source\": \"FinanceBuzz\",\n    \"sourceUrl\": \"https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/\",\n    \"confidence\": \"verified\",\n    \"context\": \"$1 $2 $3 Dollar Menu\"\n  }\n]\n``` ",
+    "parsedData": [
+      {
+        "date": "2017-12",
+        "price": 1,
+        "source": "McDonald's Corporate Announcement",
+        "sourceUrl": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/bold_new_value_menu.html",
+        "confidence": "verified",
+        "context": "$1 $2 $3 Dollar Menu"
+      },
+      {
+        "date": "2019",
+        "price": 1.49,
+        "source": "FinanceBuzz",
+        "sourceUrl": "https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/",
+        "confidence": "verified",
+        "context": "$1 $2 $3 Dollar Menu"
+      }
+    ],
+    "citations": []
+  },
+  {
+    "timestamp": "2026-04-10T15:27:16.456Z",
+    "model": "gpt-4.1",
+    "task": "Inflation Era (2020-2024)",
+    "prompt": "Research the price of a McDonald's McChicken sandwich in the United States from 2020 to 2024.\n\nCRITICAL: Only report prices you can verify from actual sources. Do NOT interpolate or estimate prices between known data points. If you can't find data for a specific period, omit it.\n\nKnown reference points to validate against:\n- 2014: $1.00 (McDonald's Dollar Menu — verified via corporate announcement)\n- 2019: ~$1.49 (FinanceBuzz data, $1 $2 $3 Dollar Menu era)\n- 2024: ~$3.19 (FinanceBuzz 2024 analysis)\n\nSearch these sources:\n1. FinanceBuzz McDonald's menu inflation analysis\n2. VisualCapitalist McDonald's price charts\n3. MenuPriceTracker.com historical data\n4. News articles about McChicken or Dollar Menu price changes\n5. McDonald's corporate announcements about menu restructuring\n\nReturn ONLY a JSON array (no prose before or after). Each element:\n{\n  \"date\": \"<YYYY or YYYY-MM>\",\n  \"price\": <number>,\n  \"source\": \"<exact source name>\",\n  \"sourceUrl\": \"<url>\",\n  \"confidence\": \"verified|estimated\",\n  \"context\": \"<Dollar Menu era, $1 $2 $3 Menu, etc.>\"\n}\n\nOnly include data points with actual source evidence. Quality over quantity.",
+    "rawResponse": "```json\n[\n  {\n    \"date\": \"2020\",\n    \"price\": 1.29,\n    \"source\": \"FastFoodMenuPrices.com\",\n    \"sourceUrl\": \"https://www.fastfoodmenuprices.com/mcdonalds-prices/\",\n    \"confidence\": \"verified\",\n    \"context\": \"$1 $2 $3 Dollar Menu era\"\n  },\n  {\n    \"date\": \"2023-07\",\n    \"price\": 5.00,\n    \"source\": \"Eat This, Not That!\",\n    \"sourceUrl\": \"https://www.eatthis.com/mcdonalds-mcchicken-price-complaints/\",\n    \"confidence\": \"verified\",\n    \"context\": \"Post-pandemic inflation period\"\n  },\n  {\n    \"date\": \"2024-06\",\n    \"price\": 2.79,\n    \"source\": \"Snopes.com\",\n    \"sourceUrl\": \"https://www.snopes.com/fact-check/mcdonalds-mcchicken-price-2024/\",\n    \"confidence\": \"verified\",\n    \"context\": \"Post-pandemic inflation period\"\n  },\n  {\n    \"date\": \"2024-12\",\n    \"price\": 2.99,\n    \"source\": \"VisualCapitalist\",\n    \"sourceUrl\": \"https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/\",\n    \"confidence\": \"verified\",\n    \"context\": \"Post-pandemic inflation period\"\n  }\n]\n``` ",
+    "parsedData": [
+      {
+        "date": "2020",
+        "price": 1.29,
+        "source": "FastFoodMenuPrices.com",
+        "sourceUrl": "https://www.fastfoodmenuprices.com/mcdonalds-prices/",
+        "confidence": "verified",
+        "context": "$1 $2 $3 Dollar Menu era"
+      },
+      {
+        "date": "2023-07",
+        "price": 5,
+        "source": "Eat This, Not That!",
+        "sourceUrl": "https://www.eatthis.com/mcdonalds-mcchicken-price-complaints/",
+        "confidence": "verified",
+        "context": "Post-pandemic inflation period"
+      },
+      {
+        "date": "2024-06",
+        "price": 2.79,
+        "source": "Snopes.com",
+        "sourceUrl": "https://www.snopes.com/fact-check/mcdonalds-mcchicken-price-2024/",
+        "confidence": "verified",
+        "context": "Post-pandemic inflation period"
+      },
+      {
+        "date": "2024-12",
+        "price": 2.99,
+        "source": "VisualCapitalist",
+        "sourceUrl": "https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/",
+        "confidence": "verified",
+        "context": "Post-pandemic inflation period"
+      }
+    ],
+    "citations": []
+  },
+  {
+    "timestamp": "2026-04-10T15:27:22.448Z",
+    "model": "gpt-4.1",
+    "task": "Current Era (2024-2026)",
+    "prompt": "Research the price of a McDonald's McChicken sandwich in the United States from 2024 to 2026.\n\nCRITICAL: Only report prices you can verify from actual sources. Do NOT interpolate or estimate prices between known data points. If you can't find data for a specific period, omit it.\n\nKnown reference points to validate against:\n- 2014: $1.00 (McDonald's Dollar Menu — verified via corporate announcement)\n- 2019: ~$1.49 (FinanceBuzz data, $1 $2 $3 Dollar Menu era)\n- 2024: ~$3.19 (FinanceBuzz 2024 analysis)\n\nSearch these sources:\n1. FinanceBuzz McDonald's menu inflation analysis\n2. VisualCapitalist McDonald's price charts\n3. MenuPriceTracker.com historical data\n4. News articles about McChicken or Dollar Menu price changes\n5. McDonald's corporate announcements about menu restructuring\n\nReturn ONLY a JSON array (no prose before or after). Each element:\n{\n  \"date\": \"<YYYY or YYYY-MM>\",\n  \"price\": <number>,\n  \"source\": \"<exact source name>\",\n  \"sourceUrl\": \"<url>\",\n  \"confidence\": \"verified|estimated\",\n  \"context\": \"<Dollar Menu era, $1 $2 $3 Menu, etc.>\"\n}\n\nOnly include data points with actual source evidence. Quality over quantity.",
+    "rawResponse": "```json\n[\n  {\n    \"date\": \"2014\",\n    \"price\": 1.00,\n    \"source\": \"McDonald's Corporate Announcement\",\n    \"sourceUrl\": \"https://www.mcdonalds.com/us/en-us/newsroom.html\",\n    \"confidence\": \"verified\",\n    \"context\": \"Dollar Menu era\"\n  },\n  {\n    \"date\": \"2019\",\n    \"price\": 1.49,\n    \"source\": \"FinanceBuzz\",\n    \"sourceUrl\": \"https://financebuzz.com/mcdonalds-menu-inflation\",\n    \"confidence\": \"verified\",\n    \"context\": \"$1 $2 $3 Dollar Menu era\"\n  },\n  {\n    \"date\": \"2024\",\n    \"price\": 2.99,\n    \"source\": \"FinanceBuzz\",\n    \"sourceUrl\": \"https://financebuzz.com/mcdonalds-menu-inflation\",\n    \"confidence\": \"verified\",\n    \"context\": \"$1 $2 $3 Dollar Menu era\"\n  }\n]\n``` ",
+    "parsedData": [
+      {
+        "date": "2014",
+        "price": 1,
+        "source": "McDonald's Corporate Announcement",
+        "sourceUrl": "https://www.mcdonalds.com/us/en-us/newsroom.html",
+        "confidence": "verified",
+        "context": "Dollar Menu era"
+      },
+      {
+        "date": "2019",
+        "price": 1.49,
+        "source": "FinanceBuzz",
+        "sourceUrl": "https://financebuzz.com/mcdonalds-menu-inflation",
+        "confidence": "verified",
+        "context": "$1 $2 $3 Dollar Menu era"
+      },
+      {
+        "date": "2024",
+        "price": 2.99,
+        "source": "FinanceBuzz",
+        "sourceUrl": "https://financebuzz.com/mcdonalds-menu-inflation",
+        "confidence": "verified",
+        "context": "$1 $2 $3 Dollar Menu era"
+      }
+    ],
+    "citations": []
+  },
+  {
+    "timestamp": "2026-04-10T15:27:29.384Z",
+    "model": "gpt-4o",
+    "task": "Cross-Validation Full Range (2014-2026)",
+    "prompt": "Research the price of a McDonald's McChicken sandwich in the United States from 2014 to 2026.\n\nCRITICAL: Only report prices you can verify from actual sources. Do NOT interpolate or estimate prices between known data points. If you can't find data for a specific period, omit it.\n\nKnown reference points to validate against:\n- 2014: $1.00 (McDonald's Dollar Menu — verified via corporate announcement)\n- 2019: ~$1.49 (FinanceBuzz data, $1 $2 $3 Dollar Menu era)\n- 2024: ~$3.19 (FinanceBuzz 2024 analysis)\n\nSearch these sources:\n1. FinanceBuzz McDonald's menu inflation analysis\n2. VisualCapitalist McDonald's price charts\n3. MenuPriceTracker.com historical data\n4. News articles about McChicken or Dollar Menu price changes\n5. McDonald's corporate announcements about menu restructuring\n\nReturn ONLY a JSON array (no prose before or after). Each element:\n{\n  \"date\": \"<YYYY or YYYY-MM>\",\n  \"price\": <number>,\n  \"source\": \"<exact source name>\",\n  \"sourceUrl\": \"<url>\",\n  \"confidence\": \"verified|estimated\",\n  \"context\": \"<Dollar Menu era, $1 $2 $3 Menu, etc.>\"\n}\n\nOnly include data points with actual source evidence. Quality over quantity.",
+    "rawResponse": "```json\n[\n  {\n    \"date\": \"2014\",\n    \"price\": 1.00,\n    \"source\": \"VisualCapitalist\",\n    \"sourceUrl\": \"https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/\",\n    \"confidence\": \"verified\",\n    \"context\": \"McDonald's Dollar Menu\"\n  },\n  {\n    \"date\": \"2024\",\n    \"price\": 2.99,\n    \"source\": \"VisualCapitalist\",\n    \"sourceUrl\": \"https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/\",\n    \"confidence\": \"verified\",\n    \"context\": \"Standard menu pricing\"\n  },\n  {\n    \"date\": \"2026-04\",\n    \"price\": 2.99,\n    \"source\": \"McDonald's Corporate Announcement\",\n    \"sourceUrl\": \"https://corporate.mcdonalds.com/corpmcd/our-stories/article/mcdolands-usa-introduces-mcvalue.html\",\n    \"confidence\": \"verified\",\n    \"context\": \"Under $3 Menu\"\n  }\n]\n``` ",
+    "parsedData": [
+      {
+        "date": "2014",
+        "price": 1,
+        "source": "VisualCapitalist",
+        "sourceUrl": "https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/",
+        "confidence": "verified",
+        "context": "McDonald's Dollar Menu"
+      },
+      {
+        "date": "2024",
+        "price": 2.99,
+        "source": "VisualCapitalist",
+        "sourceUrl": "https://www.visualcapitalist.com/charted-mcdonalds-price-inflation-2014-2024/",
+        "confidence": "verified",
+        "context": "Standard menu pricing"
+      },
+      {
+        "date": "2026-04",
+        "price": 2.99,
+        "source": "McDonald's Corporate Announcement",
+        "sourceUrl": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/mcdolands-usa-introduces-mcvalue.html",
+        "confidence": "verified",
+        "context": "Under $3 Menu"
+      }
+    ],
+    "citations": []
+  },
+  {
+    "timestamp": "2026-04-10T15:27:35.961Z",
+    "model": "gpt-4o",
+    "task": "Current Price (April 2026)",
+    "prompt": "Search for the current average price of a McDonald's McChicken sandwich in the United States.\n\nCheck these sources:\n1. menupricetracker.com — the most comprehensive source with 9,000+ locations\n2. McDonald's official website or app pricing\n3. Recent news articles about McDonald's menu prices\n4. Other fast food price aggregator sites (mcdordermenu.com, fastfoodmenuprices.com, etc.)\n\nI need:\n- National average price\n- Regional variation (Northeast, South, Midwest, West) if available\n- Price range (min and max observed)\n\nReturn ONLY a JSON object in this exact format, no other text:\n{\n  \"nationalAverage\": <number>,\n  \"priceRange\": {\"min\": <number>, \"max\": <number>},\n  \"regionalPrices\": {\n    \"northeast\": <number or null>,\n    \"south\": <number or null>,\n    \"midwest\": <number or null>,\n    \"west\": <number or null>\n  },\n  \"sources\": [\n    {\"name\": \"<source name>\", \"url\": \"<url>\", \"reportedPrice\": <number>, \"date\": \"<YYYY-MM-DD>\"}\n  ],\n  \"dataDate\": \"<YYYY-MM-DD>\"\n}",
+    "rawResponse": "```json\n{\n  \"nationalAverage\": 2.85,\n  \"priceRange\": {\"min\": 1.00, \"max\": 5.79},\n  \"regionalPrices\": {\n    \"northeast\": null,\n    \"south\": null,\n    \"midwest\": null,\n    \"west\": null\n  },\n  \"sources\": [\n    {\n      \"name\": \"MenuPriceTracker\",\n      \"url\": \"https://menupricetracker.com/mcdonalds-menu/mcchicken\",\n      \"reportedPrice\": 2.85,\n      \"date\": \"2026-03-11\"\n    }\n  ],\n  \"dataDate\": \"2026-03-11\"\n}\n``` ",
+    "parsedData": {
+      "nationalAverage": 2.85,
+      "priceRange": {
+        "min": 1,
+        "max": 5.79
+      },
+      "regionalPrices": {
+        "northeast": null,
+        "south": null,
+        "midwest": null,
+        "west": null
+      },
+      "sources": [
+        {
+          "name": "MenuPriceTracker",
+          "url": "https://menupricetracker.com/mcdonalds-menu/mcchicken",
+          "reportedPrice": 2.85,
+          "date": "2026-03-11"
+        }
+      ],
+      "dataDate": "2026-03-11"
+    },
+    "citations": []
+  },
+  {
+    "timestamp": "2026-04-10T15:27:42.639Z",
+    "model": "gpt-4o",
+    "task": "Economic Components",
+    "prompt": "Search for the latest US economic data relevant to fast food pricing:\n\n1. BLS Consumer Price Index for \"Food Away From Home\" (Series CUUR0000SEFV) — latest value\n2. USDA chicken wholesale price (cents per pound, broiler composite)\n3. BLS average hourly earnings for food service workers (NAICS 722)\n4. Current federal minimum wage and average state minimum wage\n\nReturn ONLY a JSON object:\n{\n  \"cpiFood\": <number — CPI index value>,\n  \"cpiDate\": \"<YYYY-MM>\",\n  \"chickenWholesale\": <number — cents per pound>,\n  \"chickenDate\": \"<YYYY-MM>\",\n  \"avgFoodServiceWage\": <number — dollars per hour>,\n  \"wageDate\": \"<YYYY-MM>\",\n  \"federalMinWage\": <number>,\n  \"avgStateMinWage\": <number or null>,\n  \"sources\": [\"<url1>\", \"<url2>\"]\n}",
+    "rawResponse": "```json\n{\n  \"cpiFood\": 391.706,\n  \"cpiDate\": \"2026-02\",\n  \"chickenWholesale\": 118.93,\n  \"chickenDate\": \"2025-08\",\n  \"avgFoodServiceWage\": null,\n  \"wageDate\": null,\n  \"federalMinWage\": null,\n  \"avgStateMinWage\": null,\n  \"sources\": [\n    \"https://fred.stlouisfed.org/series/CUUR0000SEFV\",\n    \"https://www.thepoultrysite.com/news/2025/10/us-broiler-prices-dip-on-higher-production-outlook\"\n  ]\n}\n``` ",
+    "parsedData": {
+      "cpiFood": 391.706,
+      "cpiDate": "2026-02",
+      "chickenWholesale": 118.93,
+      "chickenDate": "2025-08",
+      "avgFoodServiceWage": null,
+      "wageDate": null,
+      "federalMinWage": null,
+      "avgStateMinWage": null,
+      "sources": [
+        "https://fred.stlouisfed.org/series/CUUR0000SEFV",
+        "https://www.thepoultrysite.com/news/2025/10/us-broiler-prices-dip-on-higher-production-outlook"
+      ]
+    },
+    "citations": []
+  }
+]

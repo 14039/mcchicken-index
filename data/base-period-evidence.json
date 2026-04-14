@@ -1,0 +1,118 @@
+{
+  "basePrice": 1,
+  "basePeriod": "2014-01",
+  "confirmed": true,
+  "evidence": [
+    {
+      "type": "corporate_announcement",
+      "title": "McDonald's USA Launches New Dollar Menu & More to Offer Customers More Choices",
+      "url": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/new_dollar_menu.html",
+      "date": "2013-11-07",
+      "excerpt": "Beginning in early November, more than 10 years after the introduction of its Dollar Menu, McDonald's USA will introduce Dollar Menu & More, created to offer customers more choices at the great value they expect.",
+      "reliability": "high"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's revamping 'Dollar Menu' to include $5 items",
+      "url": "https://www.cnbc.com/2013/09/04/mcdonalds-revamping-dollar-menu-to-include-5-items.html",
+      "date": "2013-09-04",
+      "excerpt": "McDonald's says a revamped version of its 'Dollar Menu' that includes items priced at $5 could be launched nationally this year.",
+      "reliability": "high"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's Reports Fourth Quarter And Full Year 2013 Results",
+      "url": "https://corporate.mcdonalds.com/corpmcd/our-stories/article/_2013_full_year.html",
+      "date": "2014-01-23",
+      "excerpt": "In the U.S., comparable sales decreased 1.4% in the fourth quarter, while operating income rose 1%. During the quarter, the U.S. evolved its value proposition with the introduction of Dollar Menu & More and featured new limited-time food and beverage options to increase the relevance of its product offerings.",
+      "reliability": "high"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's bringing back 'Dollar Menu' with $1, $2 and $3 items",
+      "url": "https://www.cbsnews.com/news/mcdonalds-bringing-back-dollar-menu-with-1-2-and-3-items/",
+      "date": "2017-12-04",
+      "excerpt": "McDonald's said Monday that it is reviving the name of the once-popular value menu next month after a two-year absence, but this time the items will cost $1, $2 or $3.",
+      "reliability": "high"
+    },
+    {
+      "type": "news_article",
+      "title": "The end of McDonald's Dollar Menu as we know it",
+      "url": "https://money.cnn.com/2013/10/24/news/companies/mcdonalds-dollar-menu/index.html",
+      "date": "2013-10-24",
+      "excerpt": "McDonald's is tweaking its fabled Dollar Menu to try and rise out of its sales slump.",
+      "reliability": "high"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's Dollar Menu soon to be Dollar Menu and More",
+      "url": "https://www.latimes.com/food/dailydish/la-dd-mcdonalds-dollar-menu-20131022-story.html",
+      "date": "2013-10-22",
+      "excerpt": "McDonald's announced that it is renaming its Dollar Menu the Dollar Menu and More to make room for pricier items.",
+      "reliability": "high"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's re-emphasizes Dollar Menu",
+      "url": "https://www.potatopro.com/news/2013/mcdonalds-re-emphasizes-dollar-menu",
+      "date": "2013-03-09",
+      "excerpt": "In the midst of its first soft sales patch in nearly a decade, the McDonald's is re-emphasizing its Dollar Menu, a 10-year-old idea that became the linchpin of the last turnaround in its U.S. business.",
+      "reliability": "medium"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's 'Dollar Menu' Adding New, More Expensive Items",
+      "url": "https://www.cbsnews.com/texas/news/mcdonalds-dollar-menu-adding-new-more-expensive-items/",
+      "date": "2013-10-22",
+      "excerpt": "McDonald's is introducing some higher-priced options to its Dollar Menu and renaming it 'Dollar Menu and More' to spur sales in the U.S.",
+      "reliability": "high"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's stretches dollar menu",
+      "url": "https://www.bakingbusiness.com/articles/23930-mcdonald-s-stretches-dollar-menu",
+      "date": "2013-10-22",
+      "excerpt": "In beefing up its bargain platform, the McDonald's Corp. hopes to improve its competitive position within the quick-service restaurant industry.",
+      "reliability": "medium"
+    },
+    {
+      "type": "news_article",
+      "title": "Dollar Menu fails to lift McDonald's sales: What now? $2 menu?",
+      "url": "https://www.latimes.com/food/la-xpm-2013-apr-20-la-dd-dollar-menu-fails-20130420-story.html",
+      "date": "2013-04-20",
+      "excerpt": "McDonald's Dollar Menu has failed to perk up the fast food giant's sales, but executives are determined to push its value deals -- even in the face of a public that increasingly is lining up over at Chipotle and Panera.",
+      "reliability": "medium"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's returns to value pricing with $1 $2 $3 Dollar Menu",
+      "url": "https://money.cnn.com/2017/12/05/news/companies/mcdonalds-1-2-3-dollar-menu/index.html",
+      "date": "2017-12-05",
+      "excerpt": "McDonald's is bringing back its legendary Dollar Menu ... sort of.",
+      "reliability": "high"
+    },
+    {
+      "type": "wikipedia",
+      "title": "McChicken",
+      "url": "https://en.wikipedia.org/wiki/McChicken",
+      "date": "2024-04-10",
+      "excerpt": "In the United States, the burger's size has shrunk over time to maintain a consistent price point, as it is a longtime staple of the Dollar Menu & More (previously just the Dollar Menu), which offers various food products starting at US$1.00.",
+      "reliability": "medium"
+    },
+    {
+      "type": "news_article",
+      "title": "McDonald's menu hikes: McDouble up 168%, McChicken 200% in 10 years",
+      "url": "https://www.fox32chicago.com/news/mcdonalds-menu-hikes-mcdouble-up-168-mcchicken-200-in-10-years",
+      "date": "2024-05-23",
+      "excerpt": "A McDonald's McChicken Sandwich, which has seen its price increase by nearly 200% over the past decade, now costing around $3 compared to $1 in 2014.",
+      "reliability": "high"
+    }
+  ],
+  "dollarMenuTimeline": {
+    "started": "2002",
+    "renamedTo": "Dollar Menu & More",
+    "renamedDate": "2013-11-04",
+    "ended": "2013",
+    "notes": "The Dollar Menu was introduced in 2002 and was renamed to Dollar Menu & More in November 2013 to include items priced at $1, $2, and $5. The original Dollar Menu ended in 2013."
+  }
+}

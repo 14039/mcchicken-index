@@ -1,0 +1,138 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap");
+
+:root {
+  --neon-cyan: #00ffff;
+  --neon-magenta: #ff00ff;
+  --neon-orange: #ff6600;
+  --neon-green: #00ff66;
+  --neon-yellow: #ffff00;
+  --bg-dark: #0a0a12;
+  --bg-panel: rgba(10, 10, 18, 0.85);
+  --border-glow: rgba(0, 255, 255, 0.4);
+  --text-primary: #e0e0ff;
+  --text-secondary: #8888aa;
+  --font-display: "Orbitron", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.3);
+}
+
+#__next {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Neon glow utilities ──────────────────────────────────────── */
+
+.neon-text {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 7px var(--neon-cyan), 0 0 20px var(--neon-cyan),
+    0 0 42px rgba(0, 255, 255, 0.3);
+}
+
+.neon-text-magenta {
+  color: var(--neon-magenta);
+  text-shadow: 0 0 7px var(--neon-magenta), 0 0 20px var(--neon-magenta),
+    0 0 42px rgba(255, 0, 255, 0.3);
+}
+
+.neon-border {
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.15), inset 0 0 8px rgba(0, 255, 255, 0.05);
+}
+
+/* ── Animations ───────────────────────────────────────────────── */
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+/* ── Dashboard ────────────────────────────────────────────────── */
+
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at top, #0d0d1a 0%, #0a0a12 60%);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid rgba(255, 102, 0, 0.2);
+}
+
+.dashboard-tile {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.dashboard-tile:hover {
+  box-shadow: 0 0 30px rgba(255, 102, 0, 0.08),
+    inset 0 0 30px rgba(255, 102, 0, 0.03);
+}
+
+@media (max-width: 700px) {
+  .dashboard-header {
+    padding: 16px;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
