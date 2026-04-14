@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import DashboardTile from "./DashboardTile";
 import LineChart, { type DataSeries } from "./LineChart";
 import NewsSection from "./NewsSection";
 import LiveIndicator from "./LiveIndicator";
@@ -81,7 +80,9 @@ export default function McChickenTile() {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const res = await fetch(`/api/dashboard/mcchicken/history?range=${range}`);
+        const res = await fetch(
+          `/api/dashboard/mcchicken/history?range=${range}`
+        );
         if (res.ok) {
           const json = await res.json();
           if (json.history?.length > 0) {
@@ -101,13 +102,14 @@ export default function McChickenTile() {
   const changePercent = data?.changePercent ?? fallbackDaily.changePercent;
   const isUp = change >= 0;
   const news = data?.news || [];
+  const since2014 = (((price ?? 0) - 1.0) / 1.0) * 100;
 
   const chartSeries: DataSeries[] = useMemo(() => {
     if (history.length > 1) {
       return [
         {
           name: "McChicken Price",
-          color: "#e87730",
+          color: "#e8873a",
           data: history.map((h) => ({ date: h.date, value: h.price })),
         },
       ];
@@ -115,7 +117,7 @@ export default function McChickenTile() {
     return [
       {
         name: "30-Day Trend",
-        color: isUp ? "#54d6a0" : "#ff6b8a",
+        color: isUp ? "#4ade80" : "#f87171",
         data: fallbackSparkline.map((v, i) => ({
           date: `Day ${i + 1}`,
           value: v,
@@ -126,192 +128,246 @@ export default function McChickenTile() {
 
   if (loading) {
     return (
-      <DashboardTile title="McChicken Index™" icon="🍔" accentColor="var(--neon-orange)">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "200px" }}>
-          <div className="animate-pulse-glow" style={{ color: "var(--text-secondary)", fontSize: "0.7rem" }}>
-            Loading index data...
-          </div>
+      <div className="card" style={{ textAlign: "center", padding: "64px 24px" }}>
+        <div className="animate-pulse-glow" style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+          Loading index data...
         </div>
-      </DashboardTile>
+      </div>
     );
   }
 
   return (
-    <DashboardTile title="McChicken Index™" icon="🍔" accentColor="var(--neon-orange)">
-      <LiveIndicator color="var(--neon-orange)" />
-      {/* Price + Index */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "4px" }}>
-        <span
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "2rem",
-            fontWeight: 800,
-            color: "var(--neon-orange)",
-            textShadow: "0 0 10px rgba(255,102,0,0.5)",
-          }}
-        >
-          ${(price ?? 0).toFixed(2)}
-        </span>
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.85rem",
-            color: isUp ? "var(--neon-green)" : "var(--neon-magenta)",
-            textShadow: isUp
-              ? "0 0 6px rgba(0,255,102,0.4)"
-              : "0 0 6px rgba(255,0,255,0.4)",
-          }}
-        >
-          {changePercent !== 0
-            ? `${isUp ? "▲" : "▼"} ${Math.abs(changePercent ?? 0).toFixed(2)}%`
-            : "—"}
-        </span>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          gap: "8px",
-          marginBottom: "8px",
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1rem",
-            color: "var(--text-primary)",
-          }}
-        >
-          INDEX: {indexValue}
-        </span>
-        <span
-          style={{
-            fontSize: "0.6rem",
-            color: "var(--text-secondary)",
-          }}
-        >
-          (Base: 100 = $1.00 in Jan 2014)
-        </span>
-      </div>
-
-      <p style={{ fontSize: "0.65rem", color: "var(--text-secondary)", marginBottom: "10px" }}>
-        Since 2014:{" "}
-        <span style={{ color: "var(--neon-orange)" }}>
-          +{((((price ?? 0) - 1.0) / 1.0) * 100).toFixed(0)}%
-        </span>
-        {data ? null : (
-          <>
-            {" "}· YTD:{" "}
-            <span style={{ color: fallbackYtd.changePercent >= 0 ? "var(--neon-green)" : "var(--neon-magenta)" }}>
-              {fallbackYtd.changePercent >= 0 ? "+" : ""}
-              {(fallbackYtd.changePercent ?? 0).toFixed(2)}%
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      {/* Row 1: Price Card + Stats Card */}
+      <div className="grid-2">
+        {/* Price Card */}
+        <div className="card card--accent-top" style={{ position: "relative" }}>
+          <LiveIndicator color="var(--accent)" />
+          <div
+            style={{
+              fontSize: "0.8rem",
+              color: "var(--text-muted)",
+              marginBottom: "4px",
+              letterSpacing: "0.5px",
+            }}
+          >
+            McChicken Index™
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: "12px",
+              marginBottom: "8px",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "2.5rem",
+                fontWeight: 700,
+                color: "var(--accent)",
+                lineHeight: 1,
+              }}
+            >
+              ${(price ?? 0).toFixed(2)}
             </span>
-          </>
-        )}
-      </p>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "1rem",
+                fontWeight: 600,
+                color: isUp ? "var(--green)" : "var(--red)",
+              }}
+            >
+              {changePercent !== 0
+                ? `${isUp ? "▲" : "▼"} ${Math.abs(changePercent ?? 0).toFixed(2)}%`
+                : "—"}
+            </span>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: "8px",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "1.25rem",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+              }}
+            >
+              INDEX: {indexValue}
+            </span>
+            <span
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--text-muted)",
+              }}
+            >
+              Base: 100 = $1.00 (Jan 2014)
+            </span>
+          </div>
+        </div>
 
-      {/* Chart */}
-      <div style={{ position: "relative", marginBottom: "12px" }}>
+        {/* Stats Card */}
+        <div className="card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div className="grid-2" style={{ gap: "16px" }}>
+            <div className="stat-block">
+              <span className="stat-block__label">Index Value</span>
+              <span className="stat-block__value">{indexValue}</span>
+            </div>
+            <div className="stat-block">
+              <span className="stat-block__label">Since 2014</span>
+              <span
+                className="stat-block__value"
+                style={{ color: "var(--accent)" }}
+              >
+                +{since2014.toFixed(0)}%
+              </span>
+            </div>
+            {!data && (
+              <div className="stat-block">
+                <span className="stat-block__label">YTD Change</span>
+                <span
+                  className="stat-block__value"
+                  style={{
+                    color:
+                      fallbackYtd.changePercent >= 0
+                        ? "var(--green)"
+                        : "var(--red)",
+                  }}
+                >
+                  {fallbackYtd.changePercent >= 0 ? "+" : ""}
+                  {(fallbackYtd.changePercent ?? 0).toFixed(2)}%
+                </span>
+              </div>
+            )}
+            <div className="stat-block">
+              <span className="stat-block__label">Source</span>
+              <span
+                className="stat-block__value"
+                style={{ fontSize: "0.85rem" }}
+              >
+                {data?.source || "Estimated"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2: Chart (full width) */}
+      <div className="card">
         <div
           style={{
-            fontSize: "0.6rem",
-            color: "var(--text-secondary)",
-            letterSpacing: "2px",
-            marginBottom: "6px",
+            fontSize: "0.8rem",
+            color: "var(--text-muted)",
+            letterSpacing: "1px",
+            marginBottom: "8px",
+            textTransform: "uppercase",
           }}
         >
-          {history.length > 1 ? "PRICE HISTORY" : "30-DAY TREND"}
+          {history.length > 1 ? "Price History" : "30-Day Trend"}
         </div>
         <LineChart
           series={chartSeries}
-          height={180}
+          height={280}
           ranges={history.length > 1 ? RANGES : undefined}
           selectedRange={range}
           onRangeChange={setRange}
-          accentColor="#e87730"
+          accentColor="#e8873a"
           showLegend={false}
           valuePrefix="$"
         />
       </div>
 
-      {data?.components && data.components.cpiFood > 0 && (
-        <div style={{ marginBottom: "8px" }}>
-          <div
-            style={{
-              fontSize: "0.55rem",
-              fontFamily: "var(--font-display)",
-              color: "var(--text-secondary)",
-              letterSpacing: "2px",
-              marginBottom: "4px",
-            }}
-          >
-            ECONOMIC COMPONENTS
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "4px",
-              fontSize: "0.6rem",
-              color: "var(--text-secondary)",
-            }}
-          >
-            <div>
-              CPI Food:{" "}
-              <span style={{ color: "var(--neon-cyan)" }}>
-                {(data.components.cpiFood ?? 0).toFixed(1)}
-              </span>
+      {/* Row 3: Economic Components + News */}
+      <div className="grid-2">
+        {/* Economic Components */}
+        {data?.components && data.components.cpiFood > 0 ? (
+          <div className="card">
+            <div className="section-title" style={{ marginBottom: "12px" }}>
+              Economic Components
             </div>
-            <div>
-              Chicken:{" "}
-              <span style={{ color: "var(--neon-cyan)" }}>
-                {data.components.chickenWholesale}¢/lb
-              </span>
-            </div>
-            <div>
-              Avg Wage:{" "}
-              <span style={{ color: "var(--neon-cyan)" }}>
-                ${(data.components.avgFoodServiceWage ?? 0).toFixed(2)}/hr
-              </span>
-            </div>
-            <div>
-              Min Wage:{" "}
-              <span style={{ color: "var(--neon-cyan)" }}>
-                ${(data.components.federalMinWage ?? 0).toFixed(2)}
-              </span>
+            <div className="grid-2" style={{ gap: "12px" }}>
+              <div className="stat-block">
+                <span className="stat-block__label">CPI Food</span>
+                <span className="stat-block__value" style={{ color: "var(--teal)" }}>
+                  {(data.components.cpiFood ?? 0).toFixed(1)}
+                </span>
+              </div>
+              <div className="stat-block">
+                <span className="stat-block__label">Chicken</span>
+                <span className="stat-block__value" style={{ color: "var(--teal)" }}>
+                  {data.components.chickenWholesale}¢/lb
+                </span>
+              </div>
+              <div className="stat-block">
+                <span className="stat-block__label">Avg Wage</span>
+                <span className="stat-block__value" style={{ color: "var(--teal)" }}>
+                  ${(data.components.avgFoodServiceWage ?? 0).toFixed(2)}/hr
+                </span>
+              </div>
+              <div className="stat-block">
+                <span className="stat-block__label">Min Wage</span>
+                <span className="stat-block__value" style={{ color: "var(--teal)" }}>
+                  ${(data.components.federalMinWage ?? 0).toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
+        ) : (
+          <div className="card">
+            <div className="section-title" style={{ marginBottom: "12px" }}>
+              Economic Components
+            </div>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
+              Component data not available for current period.
+            </p>
+          </div>
+        )}
+
+        {/* News */}
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: "12px" }}>
+            Latest News
+          </div>
+          {news.length > 0 ? (
+            <NewsSection items={news} maxItems={3} />
+          ) : (
+            <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
+              No recent news available.
+            </p>
+          )}
         </div>
-      )}
+      </div>
 
-      <NewsSection items={news} accentColor="var(--neon-orange)" maxItems={3} />
-
+      {/* Bottom bar */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginTop: "8px",
+          paddingTop: "4px",
         }}
       >
-        <p style={{ fontSize: "0.5rem", color: "var(--text-secondary)", opacity: 0.5 }}>
-          {data?.source || "Estimated"} · v{data?.methodologyVersion || "1.0"}
-        </p>
+        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+          v{data?.methodologyVersion || "1.0"}
+        </span>
         <a
           href="/methodology"
           style={{
-            fontSize: "0.55rem",
-            fontFamily: "var(--font-display)",
-            color: "var(--neon-orange)",
-            textDecoration: "none",
-            letterSpacing: "1px",
-            textShadow: "0 0 4px rgba(255,102,0,0.4)",
+            fontSize: "0.8rem",
+            color: "var(--accent)",
+            fontWeight: 500,
           }}
         >
-          METHODOLOGY & API →
+          Methodology & API →
         </a>
       </div>
-    </DashboardTile>
+    </div>
   );
 }

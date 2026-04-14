@@ -1,7 +1,7 @@
 "use client";
 
 export default function LiveIndicator({
-  color = "var(--neon-green)",
+  color = "var(--green)",
   label = "LIVE",
 }: {
   color?: string;
@@ -12,29 +12,28 @@ export default function LiveIndicator({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "4px",
+        gap: "6px",
         position: "absolute",
-        top: "12px",
-        right: "16px",
+        top: "16px",
+        right: "20px",
       }}
     >
       <div
         style={{
-          width: "6px",
-          height: "6px",
+          width: "7px",
+          height: "7px",
           borderRadius: "50%",
           background: color,
-          boxShadow: `0 0 6px ${color}, 0 0 12px ${color}60`,
           animation: "live-pulse 2s ease-in-out infinite",
         }}
       />
       <span
         style={{
-          fontSize: "0.45rem",
+          fontSize: "0.7rem",
           fontFamily: "var(--font-display)",
+          fontWeight: 500,
           color,
-          letterSpacing: "2px",
-          opacity: 0.8,
+          letterSpacing: "1.5px",
         }}
       >
         {label}
