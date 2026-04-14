@@ -21,22 +21,21 @@ interface LineChartProps {
 }
 
 const CHART_COLORS = {
-  grid: "rgba(255,255,255,0.08)",
-  gridMajor: "rgba(255,255,255,0.14)",
-  axis: "rgba(255,255,255,0.2)",
-  label: "#999",
-  hoverLine: "rgba(255,255,255,0.35)",
-  tooltipBg: "rgba(8,8,16,0.96)",
-  tooltipBorder: "rgba(255,255,255,0.18)",
+  grid: "rgba(255,255,255,0.06)",
+  axis: "rgba(255,255,255,0.12)",
+  label: "#6b7280",
+  hoverLine: "rgba(255,255,255,0.25)",
+  tooltipBg: "rgba(15,17,23,0.96)",
+  tooltipBorder: "rgba(42,45,58,0.9)",
 };
 
 export default function LineChart({
   series,
-  height = 220,
+  height = 280,
   ranges,
   selectedRange,
   onRangeChange,
-  accentColor = "#6699ff",
+  accentColor = "#e8873a",
   showLegend = true,
   valuePrefix = "",
   valueSuffix = "",
@@ -62,7 +61,7 @@ export default function LineChart({
   }, []);
 
   const width = containerWidth || 400;
-  const padding = { top: 12, right: 16, bottom: 28, left: 52 };
+  const padding = { top: 12, right: 16, bottom: 32, left: 56 };
   const chartW = Math.max(width - padding.left - padding.right, 10);
   const chartH = Math.max(height - padding.top - padding.bottom, 10);
 
@@ -134,7 +133,10 @@ export default function LineChart({
     const formatDate = (raw: string): string => {
       if (raw.length === 10) {
         const [y, m, d] = raw.split("-").map(Number);
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const months = [
+          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+        ];
         if (spanDays < 60) {
           return `${months[m - 1]} ${d}`;
         } else if (spanDays < 730) {
@@ -144,7 +146,10 @@ export default function LineChart({
         }
       } else if (raw.length === 7) {
         const [y, m] = raw.split("-").map(Number);
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const months = [
+          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+        ];
         return `${months[m - 1]} '${String(y).slice(2)}`;
       } else if (raw.length === 4) {
         return raw;
@@ -153,19 +158,27 @@ export default function LineChart({
     };
 
     const targetCount = Math.min(7, Math.max(3, Math.floor(chartW / 80)));
-    const step = Math.max(1, Math.floor((dateLabels.length - 1) / (targetCount - 1)));
+    const step = Math.max(
+      1,
+      Math.floor((dateLabels.length - 1) / (targetCount - 1))
+    );
     const candidateIndices: number[] = [];
     for (let i = 0; i < targetCount; i++) {
       candidateIndices.push(Math.min(i * step, dateLabels.length - 1));
     }
-    if (candidateIndices[candidateIndices.length - 1] !== dateLabels.length - 1) {
+    if (
+      candidateIndices[candidateIndices.length - 1] !==
+      dateLabels.length - 1
+    ) {
       candidateIndices[candidateIndices.length - 1] = dateLabels.length - 1;
     }
 
     const labels: { x: number; label: string }[] = [];
     let prevLabel = "";
     for (const idx of candidateIndices) {
-      const x = padding.left + (idx / Math.max(dateLabels.length - 1, 1)) * chartW;
+      const x =
+        padding.left +
+        (idx / Math.max(dateLabels.length - 1, 1)) * chartW;
       const label = formatDate(dateLabels[idx]);
       if (label !== prevLabel) {
         labels.push({ x, label });
@@ -198,13 +211,16 @@ export default function LineChart({
   }, []);
 
   const formatValue = (v: number) => {
-    if (v >= 1000) return `${valuePrefix}${Math.round(v).toLocaleString()}${valueSuffix}`;
-    if (v >= 100) return `${valuePrefix}${Math.round(v)}${valueSuffix}`;
+    if (v >= 1000)
+      return `${valuePrefix}${Math.round(v).toLocaleString()}${valueSuffix}`;
+    if (v >= 100)
+      return `${valuePrefix}${Math.round(v)}${valueSuffix}`;
     return `${valuePrefix}${v.toFixed(2)}${valueSuffix}`;
   };
 
   const formatYLabel = (v: number) => {
-    if (v >= 1000) return `${valuePrefix}${(v / 1).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    if (v >= 1000)
+      return `${valuePrefix}${(v / 1).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
     if (v >= 100) return `${valuePrefix}${Math.round(v)}`;
     if (v >= 10) return `${valuePrefix}${v.toFixed(1)}`;
     return `${valuePrefix}${v.toFixed(2)}`;
@@ -216,8 +232,8 @@ export default function LineChart({
         <div
           style={{
             display: "flex",
-            gap: "2px",
-            marginBottom: "10px",
+            gap: "4px",
+            marginBottom: "12px",
           }}
         >
           {ranges.map((r) => (
@@ -225,20 +241,22 @@ export default function LineChart({
               key={r}
               onClick={() => onRangeChange?.(r)}
               style={{
-                fontSize: "0.6rem",
+                fontSize: "0.75rem",
                 fontFamily: "var(--font-display)",
-                fontWeight: selectedRange === r ? 700 : 400,
-                padding: "3px 10px",
-                border: "none",
-                borderBottom:
+                fontWeight: selectedRange === r ? 600 : 400,
+                padding: "4px 14px",
+                border: `1px solid ${selectedRange === r ? accentColor : "var(--border-color)"}`,
+                borderRadius: "4px",
+                background:
                   selectedRange === r
-                    ? `2px solid ${accentColor}`
-                    : "2px solid transparent",
-                background: "transparent",
+                    ? `${accentColor}15`
+                    : "transparent",
                 color:
-                  selectedRange === r ? "#fff" : "rgba(255,255,255,0.4)",
+                  selectedRange === r
+                    ? accentColor
+                    : "var(--text-muted)",
                 cursor: "pointer",
-                letterSpacing: "1px",
+                letterSpacing: "0.5px",
                 transition: "all 0.15s",
               }}
             >
@@ -262,8 +280,8 @@ export default function LineChart({
               y={padding.top}
               width={chartW}
               height={chartH}
-              fill="rgba(0,0,0,0.15)"
-              rx="2"
+              fill="rgba(0,0,0,0.1)"
+              rx="3"
             />
 
             {yTicks.map((tick, i) => (
@@ -277,10 +295,10 @@ export default function LineChart({
                   strokeWidth="1"
                 />
                 <text
-                  x={padding.left - 8}
+                  x={padding.left - 10}
                   y={tick.y + 4}
                   textAnchor="end"
-                  fontSize="10"
+                  fontSize="11"
                   fill={CHART_COLORS.label}
                   fontFamily="var(--font-mono)"
                 >
@@ -310,9 +328,9 @@ export default function LineChart({
               <text
                 key={i}
                 x={l.x}
-                y={height - 4}
+                y={height - 6}
                 textAnchor="middle"
-                fontSize="10"
+                fontSize="11"
                 fill={CHART_COLORS.label}
                 fontFamily="var(--font-mono)"
               >
@@ -376,7 +394,7 @@ export default function LineChart({
                       cx={x}
                       cy={y}
                       r="5"
-                      fill="rgba(0,0,0,0.6)"
+                      fill="var(--bg-dark)"
                       stroke={s.color}
                       strokeWidth="2"
                     />
@@ -389,29 +407,26 @@ export default function LineChart({
             <div
               style={{
                 position: "absolute",
-                left: Math.min(
-                  hoverPos.x + 14,
-                  width - 160
-                ),
+                left: Math.min(hoverPos.x + 14, width - 180),
                 top: 8,
                 background: CHART_COLORS.tooltipBg,
                 border: `1px solid ${CHART_COLORS.tooltipBorder}`,
-                borderRadius: "4px",
-                padding: "8px 12px",
-                fontSize: "0.7rem",
+                borderRadius: "6px",
+                padding: "10px 14px",
+                fontSize: "0.8rem",
                 fontFamily: "var(--font-mono)",
                 pointerEvents: "none",
                 zIndex: 10,
-                minWidth: "120px",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+                minWidth: "140px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
               }}
             >
               {dateLabels[hoverIndex] && (
                 <div
                   style={{
-                    color: "#bbb",
-                    marginBottom: "4px",
-                    fontSize: "0.65rem",
+                    color: "var(--text-muted)",
+                    marginBottom: "6px",
+                    fontSize: "0.75rem",
                     fontWeight: 600,
                   }}
                 >
@@ -426,9 +441,9 @@ export default function LineChart({
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      gap: "12px",
+                      gap: "16px",
                       color: s.color,
-                      fontSize: "0.7rem",
+                      fontSize: "0.8rem",
                     }}
                   >
                     <span style={{ opacity: 0.8 }}>{s.name}</span>
@@ -447,8 +462,8 @@ export default function LineChart({
         <div
           style={{
             display: "flex",
-            gap: "16px",
-            marginTop: "8px",
+            gap: "20px",
+            marginTop: "10px",
             justifyContent: "center",
           }}
         >
@@ -458,14 +473,14 @@ export default function LineChart({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
-                fontSize: "0.65rem",
-                color: "#aaa",
+                gap: "8px",
+                fontSize: "0.8rem",
+                color: "var(--text-secondary)",
               }}
             >
               <div
                 style={{
-                  width: "12px",
+                  width: "14px",
                   height: "3px",
                   borderRadius: "2px",
                   background: s.color,
