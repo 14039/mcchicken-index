@@ -215,7 +215,7 @@ export default function McChickenTile() {
 
         {/* Stats Card */}
         <div className="card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <div className="grid-2" style={{ gap: "16px" }}>
+          <div className="grid-2-persist">
             <div className="stat-block">
               <span className="stat-block__label">Index Value</span>
               <span className="stat-block__value">{indexValue}</span>

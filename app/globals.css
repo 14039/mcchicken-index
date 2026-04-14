@@ -190,6 +190,12 @@ a {
   gap: 20px;
 }
 
+.grid-2-persist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
 .grid-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -426,6 +432,10 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .grid-2-persist {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .grid-4 {
     grid-template-columns: 1fr 1fr;
   }
@@ -452,6 +462,7 @@ a {
     border-radius: 6px;
   }
 
+  .grid-2-persist,
   .grid-3,
   .grid-4 {
     grid-template-columns: 1fr;
