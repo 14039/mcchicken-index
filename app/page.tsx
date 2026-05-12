@@ -167,8 +167,8 @@ export default function HomePage() {
               letterSpacing: "2px",
               lineHeight: 1.05,
               background:
-                "linear-gradient(90deg, #ff003c 0%, #ff6600 30%, #ffaa00 50%, #ff00ff 80%, #00ffff 100%)",
-              backgroundSize: "200% 100%",
+                "linear-gradient(90deg, #ff003c, #ff6600, #ffaa00, #ff00ff, #00ffff, #00ff66, #ffaa00, #ff003c)",
+              backgroundSize: "300% 100%",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               WebkitTextFillColor: "transparent",

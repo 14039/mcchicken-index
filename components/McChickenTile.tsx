@@ -303,25 +303,33 @@ export default function McChickenTile() {
             <div>
               CPI Food:{" "}
               <span style={{ color: "var(--neon-cyan)" }}>
-                {(data.components.cpiFood ?? 0).toFixed(1)}
+                {data.components.cpiFood
+                  ? data.components.cpiFood.toFixed(1)
+                  : "—"}
               </span>
             </div>
             <div>
               Chicken:{" "}
               <span style={{ color: "var(--neon-cyan)" }}>
-                {data.components.chickenWholesale}¢/lb
+                {data.components.chickenWholesale
+                  ? `${data.components.chickenWholesale}¢/lb`
+                  : "—"}
               </span>
             </div>
             <div>
               Avg Wage:{" "}
               <span style={{ color: "var(--neon-cyan)" }}>
-                ${(data.components.avgFoodServiceWage ?? 0).toFixed(2)}/hr
+                {data.components.avgFoodServiceWage
+                  ? `$${data.components.avgFoodServiceWage.toFixed(2)}/hr`
+                  : "—"}
               </span>
             </div>
             <div>
               Min Wage:{" "}
               <span style={{ color: "var(--neon-cyan)" }}>
-                ${(data.components.federalMinWage ?? 0).toFixed(2)}
+                {data.components.federalMinWage
+                  ? `$${data.components.federalMinWage.toFixed(2)}`
+                  : "—"}
               </span>
             </div>
           </div>
