@@ -136,79 +136,122 @@ export default function McChickenTile() {
     );
   }
 
+  const priceStr = `$${(price ?? 0).toFixed(2)}`;
+  const since2014Pct = ((((price ?? 0) - 1.0) / 1.0) * 100).toFixed(0);
+
   return (
     <DashboardTile title="McChicken Index™" icon="🍔" accentColor="var(--neon-orange)">
       <LiveIndicator color="var(--neon-orange)" />
-      {/* Price + Index */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "4px" }}>
-        <span
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "2rem",
-            fontWeight: 800,
-            color: "var(--neon-orange)",
-            textShadow: "0 0 10px rgba(255,102,0,0.5)",
-          }}
-        >
-          ${(price ?? 0).toFixed(2)}
+
+      {/* Status chip row */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "2px" }}>
+        <span className="hype-chip">
+          <span className="live-dot" />
+          REAL-TIME FEED
         </span>
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.85rem",
-            color: isUp ? "var(--neon-green)" : "var(--neon-magenta)",
-            textShadow: isUp
-              ? "0 0 6px rgba(0,255,102,0.4)"
-              : "0 0 6px rgba(255,0,255,0.4)",
-          }}
-        >
-          {changePercent !== 0
-            ? `${isUp ? "▲" : "▼"} ${Math.abs(changePercent ?? 0).toFixed(2)}%`
-            : "—"}
-        </span>
+        <span className="hype-chip hype-chip-cyan">USD / SANDWICH</span>
+        <span className="hype-chip hype-chip-magenta">BASE 2014 = 100</span>
       </div>
 
+      {/* MASSIVE PRICE */}
       <div
         style={{
           display: "flex",
-          alignItems: "baseline",
-          gap: "8px",
-          marginBottom: "8px",
+          alignItems: "flex-end",
+          flexWrap: "wrap",
+          gap: "18px",
+          marginTop: "4px",
+          marginBottom: "4px",
         }}
       >
-        <span
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1rem",
-            color: "var(--text-primary)",
-          }}
-        >
-          INDEX: {indexValue}
+        <span className="hype-price-shadow" data-text={priceStr}>
+          <span className="hype-price">{priceStr}</span>
         </span>
         <span
           style={{
-            fontSize: "0.6rem",
-            color: "var(--text-secondary)",
+            display: "inline-flex",
+            flexDirection: "column",
+            gap: "4px",
+            paddingBottom: "10px",
           }}
         >
-          (Base: 100 = $1.00 in Jan 2014)
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 800,
+              fontSize: "1.1rem",
+              letterSpacing: "2px",
+              color: isUp ? "var(--neon-green)" : "var(--neon-magenta)",
+              textShadow: isUp
+                ? "0 0 10px rgba(0,255,102,0.7), 0 0 24px rgba(0,255,102,0.35)"
+                : "0 0 10px rgba(255,0,255,0.7), 0 0 24px rgba(255,0,255,0.35)",
+            }}
+          >
+            {changePercent !== 0
+              ? `${isUp ? "▲" : "▼"} ${Math.abs(changePercent ?? 0).toFixed(2)}%`
+              : "—"}
+          </span>
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.65rem",
+              color: "var(--text-secondary)",
+              letterSpacing: "1px",
+            }}
+          >
+            {change >= 0 ? "+" : ""}
+            ${Math.abs(change ?? 0).toFixed(2)} vs prev
+          </span>
         </span>
       </div>
 
-      <p style={{ fontSize: "0.65rem", color: "var(--text-secondary)", marginBottom: "10px" }}>
-        Since 2014:{" "}
-        <span style={{ color: "var(--neon-orange)" }}>
-          +{((((price ?? 0) - 1.0) / 1.0) * 100).toFixed(0)}%
+      {/* INDEX banner */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flexWrap: "wrap",
+          marginBottom: "4px",
+        }}
+      >
+        <span className="hype-banner">
+          INDEX • {indexValue}
         </span>
-        {data ? null : (
-          <>
-            {" "}· YTD:{" "}
-            <span style={{ color: fallbackYtd.changePercent >= 0 ? "var(--neon-green)" : "var(--neon-magenta)" }}>
-              {fallbackYtd.changePercent >= 0 ? "+" : ""}
-              {(fallbackYtd.changePercent ?? 0).toFixed(2)}%
-            </span>
-          </>
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "0.6rem",
+            letterSpacing: "2px",
+            color: "var(--neon-orange)",
+            textShadow: "0 0 6px rgba(255,102,0,0.6)",
+          }}
+        >
+          +{since2014Pct}% SINCE 2014
+        </span>
+        {!data && (
+          <span
+            className={
+              fallbackYtd.changePercent >= 0
+                ? "hype-chip hype-chip-green"
+                : "hype-chip hype-chip-magenta"
+            }
+          >
+            YTD {fallbackYtd.changePercent >= 0 ? "+" : ""}
+            {(fallbackYtd.changePercent ?? 0).toFixed(2)}%
+          </span>
         )}
+      </div>
+
+      <p
+        style={{
+          fontSize: "0.6rem",
+          color: "var(--text-secondary)",
+          marginBottom: "8px",
+          letterSpacing: "1px",
+        }}
+      >
+        ◆ MCCHICKEN INFLATION INDEX • BASE 100 = $1.00 (JAN 2014) • TRACKED IRL
       </p>
 
       {/* Chart */}
@@ -221,7 +264,7 @@ export default function McChickenTile() {
             marginBottom: "6px",
           }}
         >
-          {history.length > 1 ? "PRICE HISTORY" : "30-DAY TREND"}
+          ▣ {history.length > 1 ? "PRICE HISTORY • ALL TIME HIGH SEEKING" : "30-DAY TREND ANALYSIS"}
         </div>
         <LineChart
           series={chartSeries}
@@ -246,7 +289,7 @@ export default function McChickenTile() {
               marginBottom: "4px",
             }}
           >
-            ECONOMIC COMPONENTS
+            ▲ ECONOMIC SIGNAL STACK
           </div>
           <div
             style={{
