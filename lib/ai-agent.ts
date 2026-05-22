@@ -111,6 +111,21 @@ export async function dispatchStructuredSearch<T>(
   return null;
 }
 
+/**
+ * Plain structured generation WITHOUT web search — for grounding tasks where
+ * the model must reason only over facts we supply (e.g. the weekly analyst
+ * note) and must not browse or introduce outside numbers.
+ */
+export async function dispatchStructuredCompletion<T>(
+  prompt: string,
+  model: string = "gpt-4o"
+): Promise<{ data: T; raw: string } | null> {
+  const response = await getClient().responses.create({ model, input: prompt });
+  const text = response.output_text || "";
+  const data = extractJSON<T>(text);
+  return data !== null ? { data, raw: text } : null;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────
 
 export function extractJSON<T>(text: string): T | null {

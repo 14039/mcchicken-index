@@ -1,56 +1,87 @@
 import { NextResponse } from "next/server";
-import { getMcChickenCurrent, getMcChickenNews } from "@/lib/redis";
-import { getMcChickenPrice, getDailyChange } from "@/lib/mcchicken";
+import {
+  getMcChickenCurrent,
+  getMcChickenNews,
+  type McChickenCurrentData,
+} from "@/lib/redis";
 
 /**
  * GET /api/dashboard/mcchicken
- * Returns current McChicken Index data + news. Falls back to static data.
+ *
+ * Returns the current index snapshot + news from Redis. There is NO synthetic
+ * fallback: if no real data exists, `available: false` is returned and the UI
+ * shows an honest empty state. Legacy (v1) snapshots are normalized to the v2
+ * shape as retail-only (no fabricated movement or cost basis).
  */
 export async function GET() {
   try {
-    const [current, news] = await Promise.all([
+    const [currentRaw, news] = await Promise.all([
       getMcChickenCurrent(),
       getMcChickenNews(),
     ]);
 
-    if (current) {
-      return NextResponse.json({ ...current, news });
+    if (!currentRaw) {
+      return NextResponse.json({ available: false, news }, { status: 200 });
     }
 
-    const now = new Date();
-    const price = getMcChickenPrice(now);
-    const daily = getDailyChange(now);
-    const indexValue = Math.round((price / 1.0) * 100);
-
-    return NextResponse.json({
-      indexValue,
-      price,
-      previousPrice: daily.prevPrice,
-      change: daily.change,
-      changePercent: daily.changePercent,
-      regionalPrices: {
-        northeast: null,
-        south: null,
-        midwest: null,
-        west: null,
-      },
-      components: {
-        cpiFood: 0,
-        chickenWholesale: 0,
-        avgFoodServiceWage: 0,
-        federalMinWage: 7.25,
-      },
-      lastUpdated: now.toISOString(),
-      methodologyVersion: "1.0",
-      source: "Static fallback",
-      dataSources: [],
-      news: [],
-    });
+    const current = normalizeCurrent(currentRaw);
+    return NextResponse.json({ available: true, ...current, news });
   } catch (error) {
-    console.error("McChicken API error:", error);
+    console.error("McChicken dashboard API error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch McChicken data" },
+      { available: false, error: "Failed to fetch McChicken data" },
       { status: 500 }
     );
   }
+}
+
+/**
+ * Adapt either schema to the v2 shape. A v1 snapshot only knew a price and a
+ * (never-computed) change; we surface it truthfully as retail-only with no
+ * week-over-week movement rather than inventing one.
+ */
+function normalizeCurrent(raw: McChickenCurrentData | LegacyCurrent): McChickenCurrentData {
+  if ("headlineIndex" in raw && typeof raw.headlineIndex === "number") {
+    return raw as McChickenCurrentData;
+  }
+  const v1 = raw as LegacyCurrent;
+  const price = v1.price ?? 0;
+  const retailIndex = v1.indexValue ?? Math.round((price / 1.0) * 100);
+  return {
+    headlineIndex: retailIndex,
+    headlineMethod: "retail-only",
+    retailWeight: 1,
+    costWeight: 0,
+    retailIndex,
+    retailPrice: price,
+    costBasisIndex: null,
+    costCoverage: 0,
+    costComponents: [],
+    marginSpreadPoints: null,
+    marginSpreadPct: null,
+    changes: {
+      headlineWoWPct: null,
+      headlineWoWPoints: null,
+      retailWoWPct: null,
+      spreadWoWPoints: null,
+      sinceBasePct: Math.round((retailIndex - 100) * 100) / 100,
+      previousDate: null,
+    },
+    confidence: "retail-only",
+    priceRange: null,
+    dataDate: null,
+    retailSources: v1.dataSources ?? [],
+    context: [],
+    lastUpdated: v1.lastUpdated ?? new Date().toISOString(),
+    methodologyVersion: v1.methodologyVersion ?? "1.0",
+    notes: "Legacy snapshot — awaiting first v2 update.",
+  };
+}
+
+interface LegacyCurrent {
+  indexValue?: number;
+  price?: number;
+  lastUpdated?: string;
+  methodologyVersion?: string;
+  dataSources?: string[];
 }

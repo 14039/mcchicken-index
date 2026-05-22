@@ -1,27 +1,29 @@
 /**
- * McChicken Index AI Agent Prompts
+ * McChicken Index — AI agent prompts.
  *
- * Used by the McChicken cron job and historical seeding scripts.
- * The McChicken Index™ tracks the price of a McDonald's McChicken
- * sandwich as an economic indicator, similar to The Economist's Big Mac Index.
+ * AI web search is used ONLY for things with no authoritative API:
+ *   • the observed national-average retail McChicken price
+ *   • recent news context
+ *   • the prose layer of the weekly analyst note (numbers are supplied to it)
  *
- * Base Period: January 2014, Base Value = 100 (price = $1.00)
+ * Economic series (CPI, wages, chicken commodity) come from FRED (lib/fred.ts),
+ * not from these prompts.
+ *
+ * Base period: January 2014, McChicken = $1.00, index = 100.
  */
 
-export const MCCHICKEN_PRICE_PROMPT = `Search for the current average price of a McDonald's McChicken sandwich in the United States.
+// ── Retail price (hardened against the "cheapest vs. average" error) ──
 
-Check these sources:
-1. menupricetracker.com — the most comprehensive source with 9,000+ locations
-2. McDonald's official website or app pricing
-3. Recent news articles about McDonald's menu prices
-4. Other fast food price aggregator sites (mcdordermenu.com, fastfoodmenuprices.com, etc.)
+export const MCCHICKEN_PRICE_PROMPT = `Find the CURRENT national AVERAGE retail price of a McDonald's McChicken sandwich in the United States.
 
-I need:
-- National average price
-- Regional variation (Northeast, South, Midwest, West) if available
-- Price range (min and max observed)
+CRITICAL RULES — read carefully:
+- Report the NATIONAL AVERAGE, never the "cheapest", "lowest", "starting at", "as low as", or a single-location price.
+- Promotional / value-menu floor prices (e.g. "$1.79 at some locations") are the MINIMUM, not the average. Do not report the minimum as the average.
+- The value must be a current (within ~60 days) U.S. national average.
 
-Return ONLY a JSON object in this exact format, no other text:
+Primary source: menupricetracker.com — it aggregates thousands of locations and publishes an explicit national average. Cross-check against McDonald's app pricing, other fast-food price aggregators, and recent news.
+
+Return ONLY this JSON object, no prose:
 {
   "nationalAverage": <number>,
   "priceRange": {"min": <number>, "max": <number>},
@@ -32,115 +34,87 @@ Return ONLY a JSON object in this exact format, no other text:
     "west": <number or null>
   },
   "sources": [
-    {"name": "<source name>", "url": "<url>", "reportedPrice": <number>, "date": "<YYYY-MM-DD>"}
+    {"name": "<source>", "url": "<url>", "reportedPrice": <number>, "date": "<YYYY-MM-DD>"}
   ],
   "dataDate": "<YYYY-MM-DD>"
-}`;
+}
 
-export const MCCHICKEN_NEWS_PROMPT = `Search for recent news related to McDonald's pricing, fast food inflation, or food costs in the United States from the past 30 days.
+SANITY CHECK before answering: a U.S. national-average McChicken in the mid-2020s is roughly $2.50–$3.50. If your "nationalAverage" equals "priceRange.min", you have almost certainly grabbed the cheapest price — go back and report the AVERAGE instead.`;
 
-Focus on:
-- McDonald's menu price changes or announcements
-- Fast food industry pricing trends
-- Food inflation data or CPI reports
-- Chicken wholesale price changes
-- Minimum wage changes affecting fast food
+// ── News ─────────────────────────────────────────────────────────
 
-Return ONLY a JSON array in this exact format, no other text:
+export const MCCHICKEN_NEWS_PROMPT = `Search for recent U.S. news (past 30 days) on McDonald's pricing, fast-food value menus, food inflation, chicken/poultry commodity prices, or fast-food labor costs.
+
+Return ONLY a JSON array, no prose:
 [
-  {
-    "title": "<headline>",
-    "url": "<article url>",
-    "source": "<publication name>",
-    "date": "<YYYY-MM-DD>",
-    "summary": "<1-2 sentence summary>"
-  }
+  {"title": "<headline>", "url": "<article url>", "source": "<publication>", "date": "<YYYY-MM-DD>", "summary": "<1-2 sentence summary>"}
 ]
 
-Include 3-5 of the most relevant stories.`;
+Include 3-5 of the most relevant, recent, real stories with working URLs.`;
+
+// ── Weekly analyst note (grounded: numbers are supplied, not invented) ──
+
+export interface AnalystNoteFacts {
+  date: string;
+  headlineIndex: number;
+  headlineWoWPct: number | null;
+  retailIndex: number;
+  retailPrice: number;
+  costBasisIndex: number | null;
+  marginSpreadPoints: number | null;
+  marginSpreadPct: number | null;
+  confidence: string;
+  newsTitles: string[];
+}
+
+export function analystNotePrompt(f: AnalystNoteFacts): string {
+  const wow =
+    f.headlineWoWPct === null
+      ? "no prior week to compare"
+      : `${f.headlineWoWPct >= 0 ? "+" : ""}${f.headlineWoWPct}% week-over-week`;
+  const spread =
+    f.marginSpreadPoints === null
+      ? "cost basis unavailable this week"
+      : `${f.marginSpreadPoints >= 0 ? "+" : ""}${f.marginSpreadPoints} index points (retail vs. cost basis)`;
+
+  return `You are the analyst for the McChicken Index, an inflation indicator for financial researchers and investors. Write this week's brief note.
+
+USE ONLY THESE FIGURES. Do not invent or estimate any number not listed here:
+- Date: ${f.date}
+- Headline index: ${f.headlineIndex} (${wow})
+- Retail index: ${f.retailIndex} (observed price $${f.retailPrice.toFixed(2)})
+- Cost-basis index: ${f.costBasisIndex ?? "unavailable"}
+- Margin spread: ${spread}
+- Data confidence: ${f.confidence}
+- Relevant news headlines this week: ${f.newsTitles.length ? f.newsTitles.map((t) => `"${t}"`).join("; ") : "none retrieved"}
+
+Write 2-3 sentences of neutral, professional analysis: what moved the index, whether retail price or input costs drove it, and what the margin spread implies about McDonald's pricing posture (expanding margin vs. absorbing cost). No hype, no superlatives, no fabricated statistics. If a number is "unavailable", say so plainly.
+
+Return ONLY this JSON, no prose:
+{"title": "<= 70 chars, factual headline>", "body": "<= 600 chars analysis>", "marginRead": "<= 120 chars, one-line margin interpretation>"}`;
+}
+
+// ── Historical seeding prompts (used only by scripts/seed; kept for reference) ──
 
 export function mcchickenHistoricalPrompt(startYear: number, endYear: number): string {
   return `Research the price of a McDonald's McChicken sandwich in the United States from ${startYear} to ${endYear}.
 
-CRITICAL: Only report prices you can verify from actual sources. Do NOT interpolate or estimate prices between known data points. If you can't find data for a specific period, omit it.
+CRITICAL: Only report prices you can verify from actual sources. Do NOT interpolate or estimate between known data points. If you can't find data for a period, omit it.
 
 Known reference points to validate against:
-- 2014: $1.00 (McDonald's Dollar Menu — verified via corporate announcement)
-- 2019: ~$1.49 (FinanceBuzz data, $1 $2 $3 Dollar Menu era)
-- 2024: ~$3.19 (FinanceBuzz 2024 analysis)
+- 2014: $1.00 (Dollar Menu — verified)
+- 2019: ~$1.49 (FinanceBuzz)
+- 2024: ~$2.79–$2.99 (Snopes 150-store sample / VisualCapitalist)
 
-Search these sources:
-1. FinanceBuzz McDonald's menu inflation analysis
-2. VisualCapitalist McDonald's price charts
-3. MenuPriceTracker.com historical data
-4. News articles about McChicken or Dollar Menu price changes
-5. McDonald's corporate announcements about menu restructuring
+Return ONLY a JSON array (no prose). Each element:
+{"date": "<YYYY or YYYY-MM>", "price": <number>, "source": "<exact source>", "sourceUrl": "<url>", "confidence": "verified|estimated", "context": "<era>"}
 
-Return ONLY a JSON array (no prose before or after). Each element:
-{
-  "date": "<YYYY or YYYY-MM>",
-  "price": <number>,
-  "source": "<exact source name>",
-  "sourceUrl": "<url>",
-  "confidence": "verified|estimated",
-  "context": "<Dollar Menu era, $1 $2 $3 Menu, etc.>"
+Only include points with actual source evidence.`;
 }
 
-Only include data points with actual source evidence. Quality over quantity.`;
-}
+export const MCCHICKEN_BASE_PERIOD_PROMPT = `Establish January 2014 as the McChicken Index base period with a verified $1.00 price.
 
-export const MCCHICKEN_BASE_PERIOD_PROMPT = `I am building the "McChicken Index" — a novel economic indicator tracking the price of a McDonald's McChicken sandwich, similar to The Economist's Big Mac Index.
-
-I need to establish January 2014 as the base period with a verified price of $1.00.
-
-Search extensively for:
-1. McDonald's corporate press releases about the Dollar Menu from 2013-2014
-2. The November 2013 "Dollar Menu & More" launch — McChicken remained at $1.00
-3. News articles confirming the McChicken was $1.00 in 2014
-4. Wikipedia articles about McDonald's Dollar Menu history
-5. FinanceBuzz or VisualCapitalist analyses citing 2014 McChicken at $1.00
-6. Any archived McDonald's menus from early 2014
+Search McDonald's corporate releases about the Dollar Menu / Dollar Menu & More (2013-2014) and reputable analyses confirming the McChicken at $1.00 in 2014.
 
 Return ONLY a JSON object (no prose):
-{
-  "basePrice": 1.00,
-  "basePeriod": "2014-01",
-  "confirmed": true,
-  "evidence": [
-    {
-      "type": "corporate_announcement|news_article|analysis|archive|wikipedia",
-      "title": "<title>",
-      "url": "<url>",
-      "date": "<date>",
-      "excerpt": "<key quote or finding>",
-      "reliability": "high|medium|low"
-    }
-  ],
-  "dollarMenuTimeline": {
-    "started": "<year Dollar Menu began>",
-    "renamedTo": "<new name>",
-    "renamedDate": "<date>",
-    "ended": "<year fully retired>",
-    "notes": "<relevant context>"
-  }
-}`;
-
-export const MCCHICKEN_COMPONENTS_PROMPT = `Search for the latest US economic data relevant to fast food pricing:
-
-1. BLS Consumer Price Index for "Food Away From Home" (Series CUUR0000SEFV) — latest value
-2. USDA chicken wholesale price (cents per pound, broiler composite)
-3. BLS average hourly earnings for food service workers (NAICS 722)
-4. Current federal minimum wage and average state minimum wage
-
-Return ONLY a JSON object:
-{
-  "cpiFood": <number — CPI index value>,
-  "cpiDate": "<YYYY-MM>",
-  "chickenWholesale": <number — cents per pound>,
-  "chickenDate": "<YYYY-MM>",
-  "avgFoodServiceWage": <number — dollars per hour>,
-  "wageDate": "<YYYY-MM>",
-  "federalMinWage": <number>,
-  "avgStateMinWage": <number or null>,
-  "sources": ["<url1>", "<url2>"]
-}`;
+{"basePrice": 1.00, "basePeriod": "2014-01", "confirmed": true, "evidence": [{"type": "<corporate_announcement|news_article|analysis|archive|wikipedia>", "title": "<title>", "url": "<url>", "date": "<date>", "excerpt": "<quote>", "reliability": "high|medium|low"}]}`;

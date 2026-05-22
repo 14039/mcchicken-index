@@ -1,53 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { FRED_SERIES } from "@/lib/fred";
+import baseEvidence from "../../data/base-period-evidence.json";
 
+interface Current {
+  available?: boolean;
+  headlineIndex?: number;
+  retailIndex?: number;
+  retailPrice?: number;
+  costBasisIndex?: number | null;
+  marginSpreadPoints?: number | null;
+  headlineMethod?: string;
+  confidence?: string;
+  lastUpdated?: string;
+}
 interface HistoryPoint {
   date: string;
-  price: number;
-  indexValue: number;
+  headlineIndex: number;
+  retailIndex: number;
+  retailPrice: number;
+  costBasisIndex: number | null;
+  observed: boolean;
   source?: string;
 }
-
-interface Methodology {
-  version: string;
-  indexName: string;
-  definition: string;
-  basePeriod: {
-    date: string;
-    price: number;
-    indexValue: number;
-    justification: string;
-    evidence: unknown;
-  };
-  calculation: {
-    formula: string;
-    example: string;
-  };
-  dataCollection: {
-    frequency: string;
-    method: string;
-    sources: string[];
-    processing: string[];
-  };
-  constituentComponents: {
-    description: string;
-    components: Array<{
-      name: string;
-      source: string;
-      description: string;
-    }>;
-  };
-  api: {
-    endpoint: string;
-    parameters: Record<string, string>;
-    response: Record<string, string>;
-  };
-}
-
-interface EvidenceItem {
-  type: string;
+interface Evidence {
   title: string;
   url: string;
   date: string;
@@ -55,672 +33,252 @@ interface EvidenceItem {
   reliability: string;
 }
 
-function extractEvidence(evidence: unknown): EvidenceItem[] {
-  if (Array.isArray(evidence)) return evidence;
-  if (evidence && typeof evidence === "object" && "evidence" in evidence) {
-    const nested = (evidence as { evidence: unknown }).evidence;
-    if (Array.isArray(nested)) return nested;
-  }
-  return [];
-}
-
 export default function MethodologyPage() {
+  const [cur, setCur] = useState<Current | null>(null);
   const [history, setHistory] = useState<HistoryPoint[]>([]);
-  const [methodology, setMethodology] = useState<Methodology | null>(null);
-  const [currentIndex, setCurrentIndex] = useState<{
-    value: number;
-    price: number;
-  } | null>(null);
 
   useEffect(() => {
+    fetch("/api/dashboard/mcchicken").then((r) => r.json()).then(setCur).catch(() => {});
     fetch("/api/dashboard/mcchicken/history?range=ALL")
       .then((r) => r.json())
       .then((d) => setHistory(d.history || []))
       .catch(() => {});
-
-    fetch("/api/dashboard/mcchicken")
-      .then((r) => r.json())
-      .then((d) =>
-        setCurrentIndex({ value: d.indexValue || 0, price: d.price || 0 })
-      )
-      .catch(() => {});
-
-    fetch("/api/mcchicken")
-      .then((r) => r.json())
-      .catch(() => {});
-
-    import("../../data/methodology.json")
-      .then((m) => setMethodology(m.default as unknown as Methodology))
-      .catch(() => {});
   }, []);
 
+  const evidence = ((baseEvidence as { evidence?: Evidence[] }).evidence ?? []).slice(0, 5);
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--bg-dark)",
-        color: "var(--text-primary)",
-        fontFamily: "var(--font-mono)",
-      }}
-    >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "20px 32px",
-          borderBottom: "1px solid rgba(255,102,0,0.2)",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "0.8rem",
-            color: "var(--neon-cyan)",
-            textDecoration: "none",
-            letterSpacing: "3px",
-          }}
-        >
-          ← DASHBOARD
+    <div className="page">
+      <header className="site-header">
+        <Link className="brand" href="/" style={{ textDecoration: "none" }}>
+          <span aria-hidden>🍔</span>
+          <span>MCCHICKEN INDEX™</span>
         </Link>
-        <h1
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "0.9rem",
-            fontWeight: 700,
-            letterSpacing: "4px",
-            color: "var(--neon-orange)",
-            textShadow: "0 0 10px rgba(255,102,0,0.4)",
-          }}
-        >
-          🍔 MCCHICKEN INDEX™
-        </h1>
+        <nav style={{ display: "flex", gap: 8 }}>
+          <Link className="nav-link" href="/">Dashboard</Link>
+          <Link className="nav-link" href="/journal">Journal</Link>
+        </nav>
       </header>
 
-      <main
-        style={{
-          maxWidth: "800px",
-          margin: "0 auto",
-          padding: "32px 24px",
-        }}
-      >
-        {/* Hero Section */}
-        <section style={{ textAlign: "center", marginBottom: "48px" }}>
-          <div
-            style={{
-              fontSize: "0.6rem",
-              color: "var(--text-secondary)",
-              letterSpacing: "3px",
-              marginBottom: "8px",
-            }}
-          >
-            CURRENT INDEX VALUE
+      <main className="main">
+        {/* Live snapshot */}
+        <section style={{ textAlign: "center", marginBottom: 36 }}>
+          <div className="muted" style={{ fontSize: "0.7rem", letterSpacing: 1 }}>
+            CURRENT HEADLINE INDEX
           </div>
-          <div
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "4rem",
-              fontWeight: 800,
-              color: "var(--neon-orange)",
-              textShadow: "0 0 20px rgba(255,102,0,0.5)",
-              lineHeight: 1,
-            }}
-          >
-            {currentIndex?.value || "—"}
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "3.4rem", fontWeight: 800, color: "var(--accent)" }}>
+            {cur?.headlineIndex != null ? Math.round(cur.headlineIndex) : "—"}
           </div>
-          <div
-            style={{
-              fontSize: "1.2rem",
-              color: "var(--text-secondary)",
-              marginTop: "4px",
-            }}
-          >
-            ${currentIndex?.price?.toFixed(2) || "—"} per McChicken
-          </div>
-          <div
-            style={{
-              fontSize: "0.7rem",
-              color: "var(--text-secondary)",
-              marginTop: "8px",
-              opacity: 0.6,
-            }}
-          >
-            Base: 100 = $1.00 (January 2014)
+          <div className="muted" style={{ fontSize: "0.85rem" }}>
+            retail {cur?.retailIndex != null ? Math.round(cur.retailIndex) : "—"} · cost basis{" "}
+            {cur?.costBasisIndex != null ? Math.round(cur.costBasisIndex) : "—"} · spread{" "}
+            {cur?.marginSpreadPoints != null
+              ? `${cur.marginSpreadPoints >= 0 ? "+" : ""}${Math.round(cur.marginSpreadPoints)}`
+              : "—"}{" "}
+            · base 100 = $1.00 (Jan 2014)
           </div>
         </section>
 
-        {/* What is the McChicken Index */}
-        <Section title="WHAT IS THE MCCHICKEN INDEX?">
+        <Section title="WHAT IT MEASURES">
           <p>
-            The McChicken Index™ tracks the average price of a McDonald&apos;s
-            McChicken sandwich in the United States as an economic indicator for
-            food price inflation, labor costs, and consumer purchasing power.
-          </p>
-          <p style={{ marginTop: "12px" }}>
-            Inspired by The Economist&apos;s famous{" "}
-            <em>Big Mac Index</em> — which uses Big Mac prices to measure
-            purchasing power parity between countries — our McChicken Index
-            focuses on tracking a single standardized menu item over time within
-            the US to illustrate domestic food inflation.
-          </p>
-          <p style={{ marginTop: "12px" }}>
-            The McChicken was chosen because it was a cornerstone of
-            McDonald&apos;s Dollar Menu from its inception in 2002 through 2017,
-            making it an ideal baseline for measuring how fast food prices have
-            evolved alongside broader economic forces.
+            The McChicken Index™ tracks U.S. fast-food inflation through one standardized item — the
+            McDonald&apos;s McChicken — and anchors it to the real cost of producing and selling that
+            item. Inspired by The Economist&apos;s Big Mac Index, but extended with an input-cost
+            model so the headline reflects financial reality, not just menu-board promotions.
           </p>
         </Section>
 
-        {/* Methodology */}
-        <Section title="METHODOLOGY">
-          <h3
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "0.7rem",
-              color: "var(--neon-orange)",
-              letterSpacing: "2px",
-              marginBottom: "8px",
-            }}
-          >
-            INDEX CALCULATION
-          </h3>
-          <div
-            style={{
-              background: "rgba(255,102,0,0.05)",
-              border: "1px solid rgba(255,102,0,0.2)",
-              padding: "16px",
-              fontFamily: "var(--font-mono)",
-              marginBottom: "16px",
-            }}
-          >
-            <div style={{ fontSize: "0.85rem", color: "var(--neon-orange)" }}>
-              Index Value = (National Avg McChicken Price / $1.00) × 100
-            </div>
-            <div
-              style={{
-                fontSize: "0.65rem",
-                color: "var(--text-secondary)",
-                marginTop: "8px",
-              }}
-            >
-              Example: If the national average is $2.99, the index value is 299
-              (a 199% increase from the base period).
-            </div>
-          </div>
-
-          <h3
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "0.7rem",
-              color: "var(--neon-orange)",
-              letterSpacing: "2px",
-              marginBottom: "8px",
-            }}
-          >
-            BASE PERIOD: JANUARY 2014
-          </h3>
-          <p>
-            We use January 2014 as our base period with a base price of{" "}
-            <strong style={{ color: "var(--neon-orange)" }}>$1.00</strong>. The
-            McChicken was part of McDonald&apos;s Dollar Menu, which kept it at
-            exactly $1.00 from 2002 through the menu&apos;s restructuring in
-            late 2013.
+        <Section title="HOW THE INDEX IS BUILT">
+          <p>Three layered series, all base period January 2014 = 100:</p>
+          <Formula>
+            Retail Index = national-average McChicken price ÷ $1.00 × 100
+          </Formula>
+          <Formula>
+            Cost-Basis Index = Σ (weightᵢ × seriesᵢ ÷ seriesᵢ@2014 × 100)
+          </Formula>
+          <Formula>
+            <strong style={{ color: "var(--accent)" }}>
+              Headline Index = 0.60 × Retail + 0.40 × Cost-Basis
+            </strong>
+          </Formula>
+          <p style={{ marginTop: 12 }}>
+            <strong>Margin Spread = Retail Index − Cost-Basis Index.</strong> A positive spread means
+            the menu price is outrunning input costs (margin expansion); negative means costs are
+            outrunning the menu price (McDonald&apos;s absorbing cost). This is the headline analytic
+            signal for investors and researchers.
           </p>
-
-          {methodology?.basePeriod && extractEvidence(methodology.basePeriod.evidence).length > 0 && (
-            <div style={{ marginTop: "12px" }}>
-              <div
-                style={{
-                  fontSize: "0.6rem",
-                  color: "var(--text-secondary)",
-                  letterSpacing: "2px",
-                  marginBottom: "8px",
-                }}
-              >
-                SUPPORTING EVIDENCE
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                }}
-              >
-                {extractEvidence(methodology.basePeriod.evidence).slice(0, 6).map((ev, i) => (
-                  <a
-                    key={i}
-                    href={ev.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "block",
-                      padding: "8px 12px",
-                      background: "rgba(255,255,255,0.02)",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      textDecoration: "none",
-                      transition: "all 0.15s",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "0.7rem",
-                        color: "var(--text-primary)",
-                        marginBottom: "2px",
-                      }}
-                    >
-                      {ev.title}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "0.55rem",
-                        color: "var(--text-secondary)",
-                        fontStyle: "italic",
-                      }}
-                    >
-                      &quot;{ev.excerpt.substring(0, 120)}
-                      {ev.excerpt.length > 120 ? "..." : ""}&quot;
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "0.5rem",
-                        color: "var(--neon-orange)",
-                        marginTop: "2px",
-                        opacity: 0.7,
-                      }}
-                    >
-                      {ev.type} · {ev.date} · Reliability: {ev.reliability}
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <h3
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "0.7rem",
-              color: "var(--neon-orange)",
-              letterSpacing: "2px",
-              marginTop: "24px",
-              marginBottom: "8px",
-            }}
-          >
-            DATA COLLECTION
-          </h3>
-          <p>
-            Price data is collected weekly via AI-powered web search aggregation
-            across multiple sources:
+          <p style={{ marginTop: 12 }}>
+            The 60/40 blend keeps a transient promotion (e.g. a value-menu rollback) from swinging
+            the headline while still letting observed prices lead. When a cost input is temporarily
+            unavailable, its weight is redistributed across the remaining inputs and the published{" "}
+            <em>confidence</em> flag drops to <code>partial</code>; if no cost data is available the
+            headline falls back to retail-only and says so. We never substitute an estimated number.
           </p>
-          <ul
-            style={{
-              listStyle: "none",
-              padding: 0,
-              marginTop: "8px",
-            }}
-          >
-            {(
-              methodology?.dataCollection?.sources || [
-                "MenuPriceTracker.com (9,000+ McDonald's locations)",
-                "McDonald's official app/website pricing",
-                "Fast food price aggregator sites",
-                "News articles reporting McDonald's prices",
-              ]
-            ).map((s, i) => (
-              <li
-                key={i}
-                style={{
-                  fontSize: "0.7rem",
-                  padding: "4px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.03)",
-                }}
-              >
-                <span style={{ color: "var(--neon-orange)", marginRight: "8px" }}>
-                  ▸
-                </span>
-                {s}
+        </Section>
+
+        <Section title="COST-BASIS WEIGHTS">
+          <p style={{ marginBottom: 10 }}>
+            Weights approximate quick-service-restaurant unit economics (food, labor, and
+            occupancy/overhead each ≈ a third of operating cost; operating margin excluded):
+          </p>
+          <Row k="Chicken commodity" v="35%" />
+          <Row k="Food-service labor" v="30%" />
+          <Row k="Overhead (core-CPI proxy: rent, energy, G&A)" v="35%" />
+        </Section>
+
+        <Section title="DATA SOURCES">
+          <p style={{ marginBottom: 10 }}>
+            Economic inputs come from authoritative BLS series via the St. Louis Fed (FRED). The
+            observed retail price has no public API, so it is gathered weekly by AI web search of
+            price aggregators (primarily MenuPriceTracker) and validated before publishing.
+          </p>
+          <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+            {Object.values(FRED_SERIES).map((s) => (
+              <li key={s.id} style={{ fontSize: "0.82rem" }}>
+                <span className="accent">▸</span> {s.label} —{" "}
+                <a href={s.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  {s.source} ({s.id})
+                </a>
               </li>
             ))}
+            <li style={{ fontSize: "0.82rem" }}>
+              <span className="accent">▸</span> Retail McChicken price — MenuPriceTracker &amp; fast-food
+              aggregators (AI-aggregated, validated)
+            </li>
           </ul>
+        </Section>
 
-          <h3
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "0.7rem",
-              color: "var(--neon-orange)",
-              letterSpacing: "2px",
-              marginTop: "24px",
-              marginBottom: "8px",
-            }}
-          >
-            CONSTITUENT COMPONENTS
-          </h3>
-          <p style={{ marginBottom: "12px" }}>
-            These economic indicators provide context for price movements. They
-            are not used in the index calculation but help explain{" "}
-            <em>why</em> the McChicken price changes.
+        <Section title="DATA INTEGRITY">
+          <p>Every weekly retail read passes three checks before it can enter the index:</p>
+          <ul style={{ marginTop: 8, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
+            <li>
+              <strong>Plausibility band:</strong> a national average outside $1.50–$6.00 is rejected.
+            </li>
+            <li>
+              <strong>Average-vs-minimum guard:</strong> if the reported &quot;average&quot; equals the
+              range minimum, it is treated as the <em>cheapest</em> price (not the average) and
+              rejected — the failure mode that once put a spurious $1.79 / index-179 point in the data.
+            </li>
+            <li>
+              <strong>Week-over-week guard:</strong> moves over ±15% are quarantined and withheld
+              until a second independent reading confirms the new level, so a one-off bad read is
+              never published while genuine regime shifts still come through.
+            </li>
+          </ul>
+          <p style={{ marginTop: 10 }} className="muted">
+            Update cadence: weekly, Mondays 08:00 UTC. Method version 2.0.
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {(
-              methodology?.constituentComponents?.components || [
-                {
-                  name: "CPI for Food Away From Home",
-                  source: "Bureau of Labor Statistics",
-                  description:
-                    "Consumer Price Index for restaurant and takeout food",
-                },
-                {
-                  name: "Chicken Wholesale Price",
-                  source: "USDA",
-                  description:
-                    "National broiler chicken composite wholesale price",
-                },
-                {
-                  name: "Food Service Worker Wages",
-                  source: "Bureau of Labor Statistics",
-                  description:
-                    "Average hourly earnings for food services workers",
-                },
-                {
-                  name: "Federal Minimum Wage",
-                  source: "US Department of Labor",
-                  description: "Federal minimum wage floor",
-                },
-              ]
-            ).map((c, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: "8px 12px",
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.04)",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "0.7rem",
-                    color: "var(--text-primary)",
-                    fontWeight: 600,
-                  }}
-                >
-                  {c.name}
+        </Section>
+
+        {/* Historical table */}
+        <Section title="HISTORY">
+          {history.length > 0 ? (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
+                <thead>
+                  <tr>
+                    {["Date", "Headline", "Retail", "Cost basis", "Price", "Type"].map((h) => (
+                      <th key={h} style={th}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.slice().reverse().map((h, i) => (
+                    <tr key={i}>
+                      <td style={td}>{h.date}</td>
+                      <td style={{ ...td, color: "var(--accent)", fontWeight: 600 }}>{Math.round(h.headlineIndex)}</td>
+                      <td style={td}>{Math.round(h.retailIndex)}</td>
+                      <td style={td}>{h.costBasisIndex != null ? Math.round(h.costBasisIndex) : "—"}</td>
+                      <td style={td}>${h.retailPrice.toFixed(2)}</td>
+                      <td style={{ ...td, color: "var(--text-secondary)" }}>{h.observed ? "observed" : "historical"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="muted">Loading…</p>
+          )}
+        </Section>
+
+        <Section title="BASE PERIOD (JANUARY 2014 = $1.00)">
+          <p style={{ marginBottom: 10 }}>
+            The McChicken was a $1.00 Dollar Menu staple through the menu&apos;s 2013 restructuring.
+            Supporting evidence:
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {evidence.map((ev, i) => (
+              <a key={i} href={ev.url} target="_blank" rel="noopener noreferrer"
+                 style={{ border: "1px solid var(--border)", borderRadius: 6, padding: "8px 12px", textDecoration: "none", color: "var(--text-secondary)" }}>
+                <div style={{ color: "var(--text-primary)", fontSize: "0.82rem" }}>{ev.title}</div>
+                <div style={{ fontSize: "0.72rem", fontStyle: "italic", marginTop: 2 }}>
+                  &quot;{ev.excerpt.slice(0, 120)}{ev.excerpt.length > 120 ? "…" : ""}&quot;
                 </div>
-                <div
-                  style={{ fontSize: "0.6rem", color: "var(--text-secondary)" }}
-                >
-                  {c.description} — <em>{c.source}</em>
+                <div style={{ fontSize: "0.66rem", color: "var(--accent)", marginTop: 2 }}>
+                  {ev.date} · reliability: {ev.reliability}
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </Section>
 
-        {/* Historical Data Table */}
-        <Section title="HISTORICAL DATA">
-          {history.length > 0 ? (
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "0.7rem",
-              }}
-            >
-              <thead>
-                <tr>
-                  <th style={thStyle}>Date</th>
-                  <th style={thStyle}>Price</th>
-                  <th style={thStyle}>Index</th>
-                  <th style={thStyle}>Change</th>
-                  <th style={thStyle}>Source</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((h, i) => {
-                  const prevPrice =
-                    i > 0 ? history[i - 1].price : 1.0;
-                  const changePct = ((h.price - prevPrice) / prevPrice) * 100;
-                  return (
-                    <tr key={i}>
-                      <td style={tdStyle}>{h.date}</td>
-                      <td
-                        style={{
-                          ...tdStyle,
-                          color: "var(--neon-orange)",
-                          fontFamily: "var(--font-display)",
-                        }}
-                      >
-                        ${(h.price ?? 0).toFixed(2)}
-                      </td>
-                      <td
-                        style={{
-                          ...tdStyle,
-                          color: "var(--text-primary)",
-                        }}
-                      >
-                        {h.indexValue}
-                      </td>
-                      <td
-                        style={{
-                          ...tdStyle,
-                          color:
-                            changePct >= 0
-                              ? "var(--neon-green)"
-                              : "var(--neon-magenta)",
-                        }}
-                      >
-                        {i > 0
-                          ? `${changePct >= 0 ? "+" : ""}${(changePct ?? 0).toFixed(1)}%`
-                          : "—"}
-                      </td>
-                      <td
-                        style={{
-                          ...tdStyle,
-                          color: "var(--text-secondary)",
-                          fontSize: "0.6rem",
-                        }}
-                      >
-                        {h.source || "—"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.7rem" }}>
-              Loading historical data...
-            </p>
-          )}
-        </Section>
-
-        {/* API Documentation */}
-        <Section title="API ACCESS">
-          <p>
-            The McChicken Index is available as a free, public JSON API. No
-            authentication required.
+        <Section title="API">
+          <p>Free, public, no authentication.</p>
+          <Formula>GET https://mcchickenindex.org/api/mcchicken?range=1Y</Formula>
+          <p className="muted" style={{ fontSize: "0.78rem", marginTop: 8 }}>
+            Returns headline, retail and cost-basis layers, margin spread, week-over-week change,
+            confidence, and (with <code>range</code>) the full series. Ranges: 1M, 3M, 6M, 1Y, 3Y, 5Y, ALL.
           </p>
-
-          <div style={{ marginTop: "16px" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "0.7rem",
-                color: "var(--neon-orange)",
-                letterSpacing: "2px",
-                marginBottom: "8px",
-              }}
-            >
-              ENDPOINT
-            </h3>
-            <div
-              style={{
-                background: "rgba(0,0,0,0.3)",
-                border: "1px solid rgba(255,102,0,0.2)",
-                padding: "12px 16px",
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.8rem",
-                color: "var(--neon-cyan)",
-              }}
-            >
-              GET https://mcchickenindex.org/api/mcchicken
-            </div>
-          </div>
-
-          <div style={{ marginTop: "16px" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "0.7rem",
-                color: "var(--neon-orange)",
-                letterSpacing: "2px",
-                marginBottom: "8px",
-              }}
-            >
-              QUERY PARAMETERS
-            </h3>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.7rem" }}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>Parameter</th>
-                  <th style={thStyle}>Type</th>
-                  <th style={thStyle}>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ ...tdStyle, color: "var(--neon-cyan)" }}>range</td>
-                  <td style={tdStyle}>string</td>
-                  <td style={tdStyle}>
-                    Optional. One of: 1M, 3M, 6M, 1Y, 3Y, 5Y, ALL. Includes
-                    historical data in response.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{ marginTop: "16px" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "0.7rem",
-                color: "var(--neon-orange)",
-                letterSpacing: "2px",
-                marginBottom: "8px",
-              }}
-            >
-              EXAMPLE RESPONSE
-            </h3>
-            <pre
-              style={{
-                background: "rgba(0,0,0,0.3)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                padding: "16px",
-                fontSize: "0.65rem",
-                overflow: "auto",
-                color: "var(--text-secondary)",
-              }}
-            >
-              {JSON.stringify(
-                {
-                  index: {
-                    value: 299,
-                    price: 2.99,
-                    change: 0.1,
-                    changePercent: 3.45,
-                    basePeriod: "2014-01",
-                    basePrice: 1.0,
-                    lastUpdated: "2026-04-10T08:00:00Z",
-                    methodologyVersion: "1.0",
-                  },
-                  api: {
-                    version: "1.0",
-                    documentation: "https://mcchickenindex.org/methodology",
-                  },
-                },
-                null,
-                2
-              )}
-            </pre>
-          </div>
         </Section>
 
-        <footer
-          style={{
-            textAlign: "center",
-            padding: "32px 0",
-            fontSize: "0.6rem",
-            color: "var(--text-secondary)",
-            borderTop: "1px solid rgba(255,255,255,0.06)",
-            marginTop: "48px",
-          }}
-        >
-          <div style={{ marginBottom: "8px" }}>
-            McChicken Index™ · Methodology v
-            {methodology?.version || "1.0"} · Data updated weekly
-          </div>
-          <div>
-            <a
-              href="https://mcchickenindex.org"
-              style={{
-                color: "var(--neon-orange)",
-                textDecoration: "none",
-              }}
-            >
-              mcchickenindex.org
-            </a>
-          </div>
+        <footer className="muted" style={{ borderTop: "1px solid var(--border)", paddingTop: 16, fontSize: "0.74rem", textAlign: "center" }}>
+          McChicken Index™ · methodology v2.0 ·{" "}
+          {cur?.lastUpdated ? `data updated ${new Date(cur.lastUpdated).toISOString().split("T")[0]}` : "updated weekly"}
         </footer>
       </main>
     </div>
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section style={{ marginBottom: "40px" }}>
-      <h2
-        style={{
-          fontFamily: "var(--font-display)",
-          fontSize: "0.75rem",
-          fontWeight: 600,
-          letterSpacing: "3px",
-          color: "var(--neon-orange)",
-          textShadow: "0 0 8px rgba(255,102,0,0.3)",
-          borderBottom: "1px solid rgba(255,102,0,0.2)",
-          paddingBottom: "8px",
-          marginBottom: "16px",
-        }}
-      >
+    <section style={{ marginBottom: 32 }}>
+      <h2 style={{ fontFamily: "var(--font-display)", fontSize: "0.95rem", fontWeight: 700, letterSpacing: 1, color: "var(--accent)", borderBottom: "1px solid var(--border)", paddingBottom: 8, marginBottom: 14 }}>
         {title}
       </h2>
-      <div style={{ fontSize: "0.75rem", lineHeight: 1.7, color: "var(--text-secondary)" }}>
-        {children}
-      </div>
+      <div style={{ fontSize: "0.88rem", lineHeight: 1.65, color: "var(--text-secondary)" }}>{children}</div>
     </section>
   );
 }
 
-const thStyle: React.CSSProperties = {
-  textAlign: "left",
-  padding: "6px 8px",
-  borderBottom: "1px solid rgba(255,255,255,0.1)",
-  color: "var(--text-secondary)",
-  fontFamily: "var(--font-display)",
-  fontSize: "0.6rem",
-  letterSpacing: "1px",
-  fontWeight: 500,
-};
+function Formula({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ background: "var(--bg-elev)", border: "1px solid var(--border)", borderRadius: 6, padding: "12px 14px", fontFamily: "var(--font-mono)", fontSize: "0.86rem", color: "var(--text-primary)", margin: "8px 0" }}>
+      {children}
+    </div>
+  );
+}
 
-const tdStyle: React.CSSProperties = {
+function Row({ k, v }: { k: string; v: string }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.84rem", padding: "5px 0", borderBottom: "1px solid var(--border)" }}>
+      <span>{k}</span>
+      <span className="accent" style={{ fontWeight: 600 }}>{v}</span>
+    </div>
+  );
+}
+
+const th: React.CSSProperties = {
+  textAlign: "left",
+  padding: "7px 8px",
+  borderBottom: "1px solid var(--border-strong)",
+  color: "var(--text-secondary)",
+  fontSize: "0.7rem",
+  letterSpacing: 0.5,
+  textTransform: "uppercase",
+};
+const td: React.CSSProperties = {
   padding: "6px 8px",
-  borderBottom: "1px solid rgba(255,255,255,0.03)",
+  borderBottom: "1px solid var(--border)",
   color: "var(--text-primary)",
 };

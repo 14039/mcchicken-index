@@ -13,7 +13,6 @@ import { writeFileSync } from "fs";
 import {
   mcchickenHistoricalPrompt,
   MCCHICKEN_BASE_PERIOD_PROMPT,
-  MCCHICKEN_COMPONENTS_PROMPT,
   MCCHICKEN_PRICE_PROMPT,
 } from "../lib/prompts";
 
@@ -140,12 +139,8 @@ async function main() {
   );
   researchLog.push(currentPrice);
 
-  const components = await runResearch(
-    "Economic Components",
-    MCCHICKEN_COMPONENTS_PROMPT,
-    "gpt-4o"
-  );
-  researchLog.push(components);
+  // Economic components are now sourced from FRED at runtime (lib/fred.ts),
+  // not seeded here.
 
   writeFileSync("data/research-log.json", JSON.stringify(researchLog, null, 2));
   console.log("\n📁 Saved research log to data/research-log.json");
@@ -171,83 +166,8 @@ async function main() {
   writeFileSync("data/price-history.json", JSON.stringify(mergedPrices, null, 2));
   console.log(`📁 Saved ${mergedPrices.length} merged price points to data/price-history.json`);
 
-  const methodology = {
-    version: "1.0",
-    lastUpdated: new Date().toISOString(),
-    indexName: "McChicken Index™",
-    definition: "The McChicken Index tracks the average price of a McDonald's McChicken sandwich in the United States as an economic indicator for food price inflation, labor costs, and consumer purchasing power.",
-    basePeriod: {
-      date: "2014-01",
-      price: 1.00,
-      indexValue: 100,
-      justification: "The McChicken was priced at $1.00 as part of McDonald's Dollar Menu, which featured the McChicken at this price from its inception in 2002 through its restructuring into 'Dollar Menu & More' in November 2013, where the McChicken remained at $1.00.",
-      evidence: baseEvidence.parsedData,
-    },
-    calculation: {
-      formula: "Index Value = (National Average McChicken Price / $1.00) × 100",
-      example: "If the national average McChicken price is $3.49, the index value is 349 (a 249% increase from the base period).",
-    },
-    dataCollection: {
-      frequency: "Weekly (Monday)",
-      method: "AI-powered web search aggregation across multiple price tracking sources",
-      sources: [
-        "MenuPriceTracker.com (9,000+ McDonald's locations)",
-        "McDonald's official app/website pricing",
-        "Fast food price aggregator sites",
-        "News articles reporting McDonald's prices",
-      ],
-      processing: [
-        "Collect price reports from available sources",
-        "Filter outliers (prices below $0.50 or above $8.00)",
-        "Compute population-weighted average by region (Northeast, South, Midwest, West)",
-        "Report: median, mean, min, max across sources",
-      ],
-    },
-    constituentComponents: {
-      description: "These economic indicators provide context for price movements but are not used in the index calculation itself.",
-      components: [
-        {
-          name: "CPI for Food Away From Home",
-          series: "CUUR0000SEFV",
-          source: "Bureau of Labor Statistics",
-          description: "Consumer Price Index for food purchased at restaurants and other food-away-from-home establishments",
-        },
-        {
-          name: "Chicken Wholesale Price",
-          source: "USDA",
-          description: "National composite broiler chicken wholesale price (cents per pound)",
-        },
-        {
-          name: "Food Service Worker Wages",
-          series: "NAICS 722",
-          source: "Bureau of Labor Statistics",
-          description: "Average hourly earnings for accommodation and food services workers",
-        },
-        {
-          name: "Federal Minimum Wage",
-          source: "US Department of Labor",
-          description: "Federal minimum wage rate, which sets the floor for fast food worker compensation",
-        },
-      ],
-    },
-    api: {
-      endpoint: "GET /api/mcchicken",
-      parameters: {
-        range: "Optional. One of: 1M, 3M, 6M, 1Y, 3Y, 5Y, ALL. Default: current value only.",
-      },
-      response: {
-        indexValue: "Current index value (base 100 = $1.00 in 2014)",
-        price: "Current national average McChicken price in USD",
-        change: "Change from previous period",
-        changePercent: "Percentage change from previous period",
-        lastUpdated: "ISO timestamp of last data update",
-        methodologyVersion: "Version of the methodology used",
-      },
-    },
-  };
-
-  writeFileSync("data/methodology.json", JSON.stringify(methodology, null, 2));
-  console.log("📁 Saved methodology to data/methodology.json");
+  // Methodology is documented in the app (app/methodology) and lib/index-model;
+  // it is no longer generated as a static JSON file.
 
   console.log("\n📊 McChicken Price History:");
   for (const p of mergedPrices) {
