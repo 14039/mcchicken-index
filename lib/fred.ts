@@ -181,4 +181,67 @@ export async function getAllIndexedSeries(): Promise<
   >;
 }
 
+// ── Full observation history (for backfilling a blended series) ──
+
+export interface SeriesObs {
+  key: string;
+  spec: FredSeriesSpec;
+  baseValue: number;
+  baseDate: string;
+  /** numeric observations, ascending by time */
+  obs: { ms: number; value: number }[];
+}
+
+function obsMs(date: string): number {
+  return new Date(date.length === 7 ? `${date}-01` : date).getTime();
+}
+
+/** Fetch every configured series with its full (cleaned) observation history. */
+export async function getAllSeriesObs(): Promise<Record<FredSeriesKey, SeriesObs | null>> {
+  const keys = Object.keys(FRED_SERIES) as FredSeriesKey[];
+  const results = await Promise.all(
+    keys.map(async (k): Promise<SeriesObs | null> => {
+      const spec = FRED_SERIES[k];
+      const raw = await fetchObservations(spec.id);
+      const base = pickBase(raw);
+      if (!base) return null;
+      const baseValue = Number(base.value);
+      if (!isFinite(baseValue) || baseValue <= 0) return null;
+      const obs = raw
+        .filter((o) => o.value !== "." && o.value !== "")
+        .map((o) => ({ ms: obsMs(o.date), value: Number(o.value) }))
+        .filter((o) => isFinite(o.ms) && isFinite(o.value))
+        .sort((a, b) => a.ms - b.ms);
+      return { key: k, spec, baseValue, baseDate: base.date, obs };
+    })
+  );
+  return Object.fromEntries(keys.map((k, i) => [k, results[i]])) as Record<
+    FredSeriesKey,
+    SeriesObs | null
+  >;
+}
+
+/** Index a series to its 2014 base using the most recent value on/before dateMs. */
+export function indexedAsOf(s: SeriesObs | null, dateMs: number): IndexedSeries | null {
+  if (!s || s.obs.length === 0) return null;
+  let chosen = s.obs[0];
+  for (const o of s.obs) {
+    if (o.ms <= dateMs) chosen = o;
+    else break;
+  }
+  return {
+    key: s.key,
+    id: s.spec.id,
+    label: s.spec.label,
+    unit: s.spec.unit,
+    source: s.spec.source,
+    sourceUrl: s.spec.sourceUrl,
+    baseValue: s.baseValue,
+    baseDate: s.baseDate,
+    latestValue: chosen.value,
+    latestDate: new Date(chosen.ms).toISOString().split("T")[0],
+    indexed: (chosen.value / s.baseValue) * 100,
+  };
+}
+
 export { hasKey as fredKeyConfigured };

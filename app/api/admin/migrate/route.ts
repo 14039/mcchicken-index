@@ -1,7 +1,13 @@
-import { NextResponse } from "next/server";
-import { getAllIndexedSeries } from "@/lib/fred";
+import { getAllSeriesObs, indexedAsOf, type FredSeriesKey } from "@/lib/fred";
 import { buildSnapshot } from "@/lib/build-snapshot";
-import { RETAIL_ABS_MIN, RETAIL_ABS_MAX } from "@/lib/index-model";
+import {
+  computeCostBasis,
+  computeHeadline,
+  computeSpread,
+  RETAIL_ABS_MIN,
+  RETAIL_ABS_MAX,
+} from "@/lib/index-model";
+import { NextResponse } from "next/server";
 import {
   getMcChickenSeries,
   setMcChickenSeries,
@@ -13,18 +19,20 @@ import {
   type McChickenHistoryPoint,
 } from "@/lib/redis";
 
+export const maxDuration = 120;
+
 /**
  * POST /api/admin/migrate  (auth: Bearer CRON_SECRET)
  *
- * One-time / idempotent cleanup + upgrade:
- *   1. Merge the v2 series doc with the legacy sorted set.
- *   2. PURGE implausible reads (e.g. the $1.79 "cheapest-not-average" point)
- *      and de-duplicate to one point per date.
- *   3. Persist the clean series.
- *   4. Recompute the live snapshot in the v2 schema from the latest clean
- *      retail price + current FRED data (so the upgrade shows immediately,
- *      without waiting for Monday's cron).
- *   5. Clear any stale quarantine.
+ * Idempotent cleanup + upgrade:
+ *   1. Merge v2 series doc with the legacy sorted set.
+ *   2. Purge out-of-band reads, de-duplicate by date (keeping the reading
+ *      closest to the observed median), and drop isolated spikes — the $1.79
+ *      point is removed here.
+ *   3. Backfill a consistent BLENDED headline across all history using FRED
+ *      data as of each point's date (so the headline series is comparable
+ *      across time and week-over-week is real, not a methodology artifact).
+ *   4. Recompute the live snapshot from the latest point.
  *
  * Safe to run repeatedly.
  */
@@ -35,7 +43,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 1. Gather every known point (v2 doc + legacy zset), normalize to v2.
+    // 1. Gather all known points, normalized to v2.
     const v2 = await getMcChickenSeries();
     const legacy = (await getLegacyHistory()).map(normalizeLegacy);
     const all = [...v2, ...legacy];
@@ -50,15 +58,14 @@ export async function POST(request: Request) {
       return !bad;
     });
 
-    // Robust center of the observed distribution (one bad read can't move it).
+    // Robust center of the observed distribution.
     const obsPrices = plausible
       .filter((p) => p.observed)
       .map((p) => p.retailPrice)
       .sort((a, b) => a - b);
     const median = obsPrices.length ? obsPrices[Math.floor(obsPrices.length / 2)] : 0;
 
-    // 2b. One point per date. On collision keep the reading closest to the
-    //     median (so a bad same-date read like $1.79 loses to the real $2.85).
+    // 2b. One point per date; on collision keep the reading closest to median.
     const byDate = new Map<string, McChickenHistoryPoint>();
     for (const p of plausible) {
       const cur = byDate.get(p.date);
@@ -71,15 +78,15 @@ export async function POST(request: Request) {
         (p.observed === cur.observed &&
           Math.abs(p.retailPrice - median) < Math.abs(cur.retailPrice - median));
       const loser = pWins ? cur : p;
-      if (loser.retailPrice !== (pWins ? p : cur).retailPrice) {
+      const winner = pWins ? p : cur;
+      if (loser.retailPrice !== winner.retailPrice) {
         purged.push(`${loser.date} $${loser.retailPrice} (duplicate date)`);
       }
-      byDate.set(p.date, pWins ? p : cur);
+      byDate.set(p.date, winner);
     }
     let clean = Array.from(byDate.values()).sort((a, b) => msOf(a.date) - msOf(b.date));
 
-    // 2c. Drop isolated observed spikes (>20% from BOTH neighbors) — defense in
-    //     depth so a lone bad point is removed even without a same-date sibling.
+    // 2c. Drop isolated observed spikes (>20% from BOTH neighbors).
     const obs = clean.filter((p) => p.observed);
     const spikeDates = new Set<string>();
     for (let i = 1; i < obs.length - 1; i++) {
@@ -92,17 +99,37 @@ export async function POST(request: Request) {
     }
     clean = clean.filter((p) => !spikeDates.has(p.date));
 
-    // 3. Persist clean series.
-    await setMcChickenSeries(clean);
+    // 3. Backfill a blended headline across history using FRED as-of each date.
+    const seriesObs = await getAllSeriesObs();
+    const backfilled: McChickenHistoryPoint[] = clean.map((p) => {
+      const ms = msOf(p.date);
+      const cb = computeCostBasis({
+        chicken: indexedAsOf(seriesObs.chicken, ms),
+        labor: indexedAsOf(seriesObs.labor, ms),
+        overhead: indexedAsOf(seriesObs.overhead, ms),
+      });
+      const headline = computeHeadline(p.retailIndex, cb);
+      const spread = computeSpread(p.retailIndex, cb.value);
+      return {
+        ...p,
+        costBasisIndex: cb.value,
+        headlineIndex: headline.value,
+        marginSpreadPoints: spread?.points ?? null,
+      };
+    });
 
-    // 4. Recompute the live snapshot from the latest clean observed read.
-    const fred = await getAllIndexedSeries();
-    const observed = clean.filter((p) => p.observed);
-    const latest = observed[observed.length - 1] ?? clean[clean.length - 1] ?? null;
+    // 4. Recompute the live snapshot from the latest observed point + prior.
+    const nowMs = Date.now();
+    const fred = Object.fromEntries(
+      (Object.keys(seriesObs) as FredSeriesKey[]).map((k) => [k, indexedAsOf(seriesObs[k], nowMs)])
+    ) as Record<FredSeriesKey, ReturnType<typeof indexedAsOf>>;
+
+    const observedB = backfilled.filter((p) => p.observed);
+    const latest = observedB[observedB.length - 1] ?? backfilled[backfilled.length - 1] ?? null;
     let snapshotInfo: Record<string, unknown> = { recomputed: false };
 
     if (latest) {
-      const prior = observed.filter((p) => p.date < latest.date).slice(-1)[0] ?? null;
+      const prior = observedB.filter((p) => p.date < latest.date).slice(-1)[0] ?? null;
       const { current, point } = buildSnapshot({
         today: latest.date,
         retailPrice: latest.retailPrice,
@@ -113,8 +140,7 @@ export async function POST(request: Request) {
         prior,
         source: latest.source || "Recomputed (migration)",
       });
-      // Replace the latest point with its recomputed (now cost-aware) version.
-      const merged = clean.filter((p) => p.date !== point.date);
+      const merged = backfilled.filter((p) => p.date !== point.date);
       merged.push(point);
       await setMcChickenSeries(merged);
       await setMcChickenCurrent(current);
@@ -124,26 +150,26 @@ export async function POST(request: Request) {
         retailIndex: current.retailIndex,
         costBasisIndex: current.costBasisIndex,
         marginSpread: current.marginSpreadPoints,
+        changeWoWPct: current.changes.headlineWoWPct,
         method: current.headlineMethod,
         confidence: current.confidence,
       };
     } else {
-      // No clean point at all — leave current untouched if present.
+      await setMcChickenSeries(backfilled);
       const existing = await getMcChickenCurrent();
       snapshotInfo = { recomputed: false, currentPresent: Boolean(existing) };
     }
 
-    // 5. Clear any stale quarantine.
     await setQuarantine(null);
 
     return NextResponse.json({
       success: true,
       purged,
       purgedCount: purged.length,
-      cleanPoints: clean.length,
+      cleanPoints: backfilled.length,
       snapshot: snapshotInfo,
       fredAvailable: Object.fromEntries(
-        Object.entries(fred).map(([k, v]) => [k, v !== null])
+        Object.entries(seriesObs).map(([k, v]) => [k, v !== null])
       ),
     });
   } catch (error) {
