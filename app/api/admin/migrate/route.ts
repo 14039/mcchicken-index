@@ -40,22 +40,57 @@ export async function POST(request: Request) {
     const legacy = (await getLegacyHistory()).map(normalizeLegacy);
     const all = [...v2, ...legacy];
 
-    // 2a. Drop implausible observed reads (the $1.79 class lands here).
     const purged: string[] = [];
+
+    // 2a. Drop absolutely implausible observed reads.
     const plausible = all.filter((p) => {
       const bad =
         p.observed && (p.retailPrice < RETAIL_ABS_MIN || p.retailPrice > RETAIL_ABS_MAX);
-      if (bad) purged.push(`${p.date} $${p.retailPrice}`);
+      if (bad) purged.push(`${p.date} $${p.retailPrice} (out-of-band)`);
       return !bad;
     });
 
-    // 2b. De-duplicate by date. Prefer observed points; otherwise keep the last.
+    // Robust center of the observed distribution (one bad read can't move it).
+    const obsPrices = plausible
+      .filter((p) => p.observed)
+      .map((p) => p.retailPrice)
+      .sort((a, b) => a - b);
+    const median = obsPrices.length ? obsPrices[Math.floor(obsPrices.length / 2)] : 0;
+
+    // 2b. One point per date. On collision keep the reading closest to the
+    //     median (so a bad same-date read like $1.79 loses to the real $2.85).
     const byDate = new Map<string, McChickenHistoryPoint>();
-    for (const p of plausible.sort((a, b) => msOf(a.date) - msOf(b.date))) {
-      const existing = byDate.get(p.date);
-      if (!existing || (p.observed && !existing.observed)) byDate.set(p.date, p);
+    for (const p of plausible) {
+      const cur = byDate.get(p.date);
+      if (!cur) {
+        byDate.set(p.date, p);
+        continue;
+      }
+      const pWins =
+        (p.observed && !cur.observed) ||
+        (p.observed === cur.observed &&
+          Math.abs(p.retailPrice - median) < Math.abs(cur.retailPrice - median));
+      const loser = pWins ? cur : p;
+      if (loser.retailPrice !== (pWins ? p : cur).retailPrice) {
+        purged.push(`${loser.date} $${loser.retailPrice} (duplicate date)`);
+      }
+      byDate.set(p.date, pWins ? p : cur);
     }
-    const clean = Array.from(byDate.values()).sort((a, b) => msOf(a.date) - msOf(b.date));
+    let clean = Array.from(byDate.values()).sort((a, b) => msOf(a.date) - msOf(b.date));
+
+    // 2c. Drop isolated observed spikes (>20% from BOTH neighbors) — defense in
+    //     depth so a lone bad point is removed even without a same-date sibling.
+    const obs = clean.filter((p) => p.observed);
+    const spikeDates = new Set<string>();
+    for (let i = 1; i < obs.length - 1; i++) {
+      const dPrev = Math.abs(obs[i].retailPrice / obs[i - 1].retailPrice - 1);
+      const dNext = Math.abs(obs[i].retailPrice / obs[i + 1].retailPrice - 1);
+      if (dPrev > 0.2 && dNext > 0.2) {
+        spikeDates.add(obs[i].date);
+        purged.push(`${obs[i].date} $${obs[i].retailPrice} (isolated spike)`);
+      }
+    }
+    clean = clean.filter((p) => !spikeDates.has(p.date));
 
     // 3. Persist clean series.
     await setMcChickenSeries(clean);

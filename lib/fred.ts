@@ -41,11 +41,11 @@ export const FRED_SERIES = {
     sourceUrl: "https://fred.stlouisfed.org/series/APU0000706111",
   },
   labor: {
-    id: "CES7072200003",
-    label: "Food-service hourly wage",
+    id: "CES7000000003",
+    label: "Leisure & hospitality wage",
     unit: "$/hr",
     source: "BLS via FRED",
-    sourceUrl: "https://fred.stlouisfed.org/series/CES7072200003",
+    sourceUrl: "https://fred.stlouisfed.org/series/CES7000000003",
   },
   overhead: {
     id: "CPILFESL",

@@ -122,7 +122,7 @@ export default function MethodologyPage() {
             occupancy/overhead each ≈ a third of operating cost; operating margin excluded):
           </p>
           <Row k="Chicken commodity" v="35%" />
-          <Row k="Food-service labor" v="30%" />
+          <Row k="Labor (leisure &amp; hospitality wages)" v="30%" />
           <Row k="Overhead (core-CPI proxy: rent, energy, G&A)" v="35%" />
         </Section>
 
