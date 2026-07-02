@@ -1,0 +1,115 @@
+{
+  "manifestVersion": "v1",
+  "adopted": "2026-07-02",
+  "itemSpec": "McChicken sandwich, à la carte, standard in-store/app-pickup menu price. Value-menu membership is metadata, not an exclusion. Excluded: limited-time offers, app-only coupons, combos/bundles/meal deals, all delivery-platform prices.",
+  "primaryAggregator": "menupricetracker.com",
+  "metros": [
+    {
+      "metro": "New York, NY",
+      "region": "Northeast",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/new-york/new-york",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Philadelphia, PA",
+      "region": "Northeast",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/pennsylvania/philadelphia",
+      "verified": "2026-07-02",
+      "notes": "Added to complete regional balance; first priced at panel activation."
+    },
+    {
+      "metro": "Atlanta, GA",
+      "region": "South",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/georgia/atlanta",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Miami, FL",
+      "region": "South",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/florida/miami",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Dallas, TX",
+      "region": "South",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/texas/dallas",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Chicago, IL",
+      "region": "Midwest",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/illinois/chicago",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Kansas City, MO",
+      "region": "Midwest",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/missouri/kansas-city",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Columbus, OH",
+      "region": "Midwest",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/ohio/columbus",
+      "verified": "2026-07-02",
+      "notes": "Methodology Appendix B noted the city page lacked a McChicken average at pilot; as of 2026-07-02 verification the city page carries one, so the city page is pinned like all other metros."
+    },
+    {
+      "metro": "Los Angeles, CA",
+      "region": "West",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/california/los-angeles",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Seattle, WA",
+      "region": "West",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/washington/seattle",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Denver, CO",
+      "region": "West",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/colorado/denver",
+      "verified": "2026-07-02",
+      "notes": null
+    },
+    {
+      "metro": "Phoenix, AZ",
+      "region": "West",
+      "primaryUrl": "https://menupricetracker.com/mcdonalds/arizona/phoenix",
+      "verified": "2026-07-02",
+      "notes": "Added to complete regional balance; first priced at panel activation."
+    }
+  ],
+  "sourceHierarchy": [
+    "pinned primary URL for the metro",
+    "another store-level page on the same aggregator for that metro",
+    "McDonald's app/website store pages",
+    "recent local news"
+  ],
+  "contentFarmBlocklist": [
+    "macmenus.us",
+    "mac-menus.com",
+    "mcd-menu.us",
+    "hackthemenu.com",
+    "menuwithprice.com",
+    "fastfoodnutrition.org",
+    "fastfoodmenuprices.com"
+  ],
+  "deliveryPlatformBlocklist": [
+    "doordash.com",
+    "ubereats.com",
+    "grubhub.com",
+    "postmates.com",
+    "seamless.com",
+    "instacart.com"
+  ]
+}

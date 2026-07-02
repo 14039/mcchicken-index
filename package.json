@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "npx tsx scripts/seed-mcchicken-history.ts"
+    "test:pipeline": "npx tsx scripts/test-pipeline.ts"
   },
   "dependencies": {
     "@upstash/redis": "^1.37.0",
@@ -15,7 +15,9 @@
     "next": "^15.5.12",
     "openai": "^6.34.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.15.2",

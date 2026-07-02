@@ -1,0 +1,42 @@
+[
+  {
+    "date": "2014-01",
+    "priceUsd": 1.0,
+    "specGrams": 143,
+    "specFlag": null,
+    "wageUsdPerHour": 20.39,
+    "mciMinutes": 2.9,
+    "note": "Dollar Menu — promotional era",
+    "priceSource": "McDonald's Dollar Menu national pricing, Jan 2014; citations archived in data/base-period-evidence.json"
+  },
+  {
+    "date": "2019-06",
+    "priceUsd": 1.29,
+    "specGrams": 144,
+    "specFlag": "interpolated — last officially published weight (2016) carried; McDonald's published no consumer-facing gram weights 2017–2020",
+    "wageUsdPerHour": 23.48,
+    "mciMinutes": 3.2,
+    "note": "$1 $2 $3 menu era",
+    "priceSource": "McDonald's $1 $2 $3 Dollar Menu tier pricing, Jun 2019"
+  },
+  {
+    "date": "2024-06",
+    "priceUsd": 2.79,
+    "specGrams": 140.06,
+    "specFlag": null,
+    "wageUsdPerHour": 30.07,
+    "mciMinutes": 5.5,
+    "note": "Peak affordability squeeze",
+    "priceSource": "Snopes survey of 150 U.S. stores, Jun 2024"
+  },
+  {
+    "date": "2026-07",
+    "priceUsd": 2.74,
+    "specGrams": 139.46,
+    "specFlag": null,
+    "wageUsdPerHour": 32.38,
+    "mciMinutes": 5.1,
+    "note": "Under $3 Menu era",
+    "priceSource": "Pilot dispatch of the v3 survey instrument, 2026-07-02 (10/12 metros verified)"
+  }
+]

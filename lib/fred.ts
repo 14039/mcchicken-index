@@ -1,247 +1,85 @@
 /**
- * FRED (Federal Reserve Economic Data) API client
+ * FRED client — wage denominator (AHETPI).
  *
- * Authoritative source for the McChicken Index's economic backbone.
- * We use FRED for the *exact numeric* series that feed the Input-Cost Basis
- * (chicken commodity, food-service labor, general overhead) so those numbers
- * are real and citable rather than AI-estimated.
- *
- * Free API key: https://fredaccount.stlouisfed.org/apikeys
- * Set FRED_API_KEY in the environment. If it is absent or a fetch fails,
- * every helper degrades to `null` — the index then transparently reports
- * "cost basis unavailable" rather than fabricating a value.
- *
- * Docs: https://fred.stlouisfed.org/docs/api/fred/series_observations.html
+ * Primary path: official API with FRED_API_KEY. Fallback: fredgraph.csv,
+ * FRED's public keyless CSV export of the same series — identical data,
+ * used when the key is absent (local dev) or the API errors. Both paths
+ * return real FRED observations; there is no synthetic fallback.
  */
 
-const FRED_BASE = "https://api.stlouisfed.org/fred/series/observations";
+import { FRED_WAGE_SERIES } from "./config";
+import type { WageObservation } from "./types";
 
-/** Base period for the index: January 2014. */
-export const BASE_YEAR = "2014";
+const API_BASE = "https://api.stlouisfed.org/fred/series/observations";
+const GRAPH_BASE = "https://fred.stlouisfed.org/graph/fredgraph.csv";
 
-export interface FredSeriesSpec {
-  id: string;
-  label: string;
-  unit: string;
-  source: string;
-  sourceUrl: string;
-}
-
-/**
- * Canonical FRED series powering the cost basis + context panel.
- * IDs are verified, long-running public BLS/DOL series. Each is indexed to
- * its own January-2014 value so the basket equals 100 at the base period.
- */
-export const FRED_SERIES = {
-  chicken: {
-    id: "APU0000706111",
-    label: "Chicken, whole (per lb)",
-    unit: "$/lb",
-    source: "BLS via FRED",
-    sourceUrl: "https://fred.stlouisfed.org/series/APU0000706111",
-  },
-  labor: {
-    id: "CES7000000003",
-    label: "Leisure & hospitality wage",
-    unit: "$/hr",
-    source: "BLS via FRED",
-    sourceUrl: "https://fred.stlouisfed.org/series/CES7000000003",
-  },
-  overhead: {
-    id: "CPILFESL",
-    label: "Core CPI (overhead proxy)",
-    unit: "index 1982-84=100",
-    source: "BLS via FRED",
-    sourceUrl: "https://fred.stlouisfed.org/series/CPILFESL",
-  },
-  cpiFaFH: {
-    id: "CUSR0000SEFV",
-    label: "CPI: Food away from home",
-    unit: "index 1982-84=100",
-    source: "BLS via FRED",
-    sourceUrl: "https://fred.stlouisfed.org/series/CUSR0000SEFV",
-  },
-} as const satisfies Record<string, FredSeriesSpec>;
-
-export type FredSeriesKey = keyof typeof FRED_SERIES;
-
-export interface IndexedSeries {
-  key: string;
-  id: string;
-  label: string;
-  unit: string;
-  source: string;
-  sourceUrl: string;
-  baseValue: number;
-  baseDate: string;
-  latestValue: number;
-  latestDate: string;
-  /** latestValue / baseValue * 100 (base period = 100). */
-  indexed: number;
-}
-
-interface FredObservation {
+interface FredApiObservation {
   date: string;
   value: string;
 }
 
-function hasKey(): boolean {
-  return Boolean(process.env.FRED_API_KEY);
-}
-
-/**
- * Fetch raw observations for a series from 2013-12 to today.
- * Returns [] on any failure (no key, network error, bad payload).
- */
-async function fetchObservations(seriesId: string): Promise<FredObservation[]> {
-  if (!hasKey()) return [];
+async function fetchViaApi(seriesId: string): Promise<{ date: string; value: number } | null> {
+  const key = process.env.FRED_API_KEY;
+  if (!key) return null;
   const url =
-    `${FRED_BASE}?series_id=${encodeURIComponent(seriesId)}` +
-    `&api_key=${process.env.FRED_API_KEY}` +
-    `&file_type=json&observation_start=2013-12-01`;
-
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) {
-      console.error(`FRED ${seriesId}: HTTP ${res.status}`);
-      return [];
-    }
-    const json = (await res.json()) as { observations?: FredObservation[] };
-    return json.observations ?? [];
-  } catch (err) {
-    console.error(`FRED ${seriesId}: fetch failed`, err);
-    return [];
-  }
-}
-
-/** First valid observation dated within the base year (2014). */
-function pickBase(obs: FredObservation[]): FredObservation | null {
-  for (const o of obs) {
-    if (o.date.startsWith(BASE_YEAR) && o.value !== "." && o.value !== "") {
-      return o;
-    }
+    `${API_BASE}?series_id=${seriesId}&api_key=${key}&file_type=json` +
+    `&sort_order=desc&limit=12`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  if (!res.ok) throw new Error(`FRED API ${res.status}`);
+  const body = (await res.json()) as { observations?: FredApiObservation[] };
+  for (const obs of body.observations ?? []) {
+    const v = Number(obs.value);
+    if (obs.value !== "." && isFinite(v)) return { date: obs.date, value: v };
   }
   return null;
 }
 
-/** Most recent valid (non-".") observation. */
-function pickLatest(obs: FredObservation[]): FredObservation | null {
-  for (let i = obs.length - 1; i >= 0; i--) {
-    if (obs[i].value !== "." && obs[i].value !== "") return obs[i];
+async function fetchViaFredgraph(seriesId: string): Promise<{ date: string; value: number } | null> {
+  const res = await fetch(`${GRAPH_BASE}?id=${seriesId}`, {
+    signal: AbortSignal.timeout(15000),
+    headers: { "User-Agent": "mcchickenindex.org data pipeline" },
+  });
+  if (!res.ok) throw new Error(`fredgraph ${res.status}`);
+  const csv = await res.text();
+  const lines = csv.trim().split("\n");
+  for (let i = lines.length - 1; i > 0; i--) {
+    const [date, raw] = lines[i].split(",");
+    const v = Number(raw);
+    if (raw !== "." && isFinite(v) && date) return { date: date.trim(), value: v };
   }
   return null;
 }
 
 /**
- * Fetch a single series and index it to its 2014 base.
- * Returns null when the series cannot be sourced — callers must treat that
- * as "unavailable" and never substitute a guess.
+ * Latest AHETPI observation. The month + value get vintage-pinned into every
+ * published point; history is never restated when BLS revises.
  */
-export async function getIndexedSeries(
-  key: FredSeriesKey
-): Promise<IndexedSeries | null> {
-  const spec = FRED_SERIES[key];
-  const obs = await fetchObservations(spec.id);
-  if (obs.length === 0) return null;
-
-  const base = pickBase(obs);
-  const latest = pickLatest(obs);
-  if (!base || !latest) return null;
-
-  const baseValue = Number(base.value);
-  const latestValue = Number(latest.value);
-  if (!isFinite(baseValue) || baseValue <= 0 || !isFinite(latestValue)) {
-    return null;
+export async function fetchWage(): Promise<WageObservation> {
+  let viaApi: { date: string; value: number } | null = null;
+  let apiError: string | null = null;
+  try {
+    viaApi = await fetchViaApi(FRED_WAGE_SERIES);
+  } catch (e) {
+    apiError = e instanceof Error ? e.message : String(e);
   }
-
-  return {
-    key,
-    id: spec.id,
-    label: spec.label,
-    unit: spec.unit,
-    source: spec.source,
-    sourceUrl: spec.sourceUrl,
-    baseValue,
-    baseDate: base.date,
-    latestValue,
-    latestDate: latest.date,
-    indexed: (latestValue / baseValue) * 100,
-  };
-}
-
-/** Fetch all configured series in parallel. Missing ones come back null. */
-export async function getAllIndexedSeries(): Promise<
-  Record<FredSeriesKey, IndexedSeries | null>
-> {
-  const keys = Object.keys(FRED_SERIES) as FredSeriesKey[];
-  const results = await Promise.all(keys.map((k) => getIndexedSeries(k)));
-  return Object.fromEntries(keys.map((k, i) => [k, results[i]])) as Record<
-    FredSeriesKey,
-    IndexedSeries | null
-  >;
-}
-
-// ── Full observation history (for backfilling a blended series) ──
-
-export interface SeriesObs {
-  key: string;
-  spec: FredSeriesSpec;
-  baseValue: number;
-  baseDate: string;
-  /** numeric observations, ascending by time */
-  obs: { ms: number; value: number }[];
-}
-
-function obsMs(date: string): number {
-  return new Date(date.length === 7 ? `${date}-01` : date).getTime();
-}
-
-/** Fetch every configured series with its full (cleaned) observation history. */
-export async function getAllSeriesObs(): Promise<Record<FredSeriesKey, SeriesObs | null>> {
-  const keys = Object.keys(FRED_SERIES) as FredSeriesKey[];
-  const results = await Promise.all(
-    keys.map(async (k): Promise<SeriesObs | null> => {
-      const spec = FRED_SERIES[k];
-      const raw = await fetchObservations(spec.id);
-      const base = pickBase(raw);
-      if (!base) return null;
-      const baseValue = Number(base.value);
-      if (!isFinite(baseValue) || baseValue <= 0) return null;
-      const obs = raw
-        .filter((o) => o.value !== "." && o.value !== "")
-        .map((o) => ({ ms: obsMs(o.date), value: Number(o.value) }))
-        .filter((o) => isFinite(o.ms) && isFinite(o.value))
-        .sort((a, b) => a.ms - b.ms);
-      return { key: k, spec, baseValue, baseDate: base.date, obs };
-    })
+  if (viaApi) {
+    return {
+      usdPerHour: viaApi.value,
+      month: viaApi.date.slice(0, 7),
+      fetchedAt: new Date().toISOString(),
+      source: "FRED AHETPI (api)",
+    };
+  }
+  const viaGraph = await fetchViaFredgraph(FRED_WAGE_SERIES);
+  if (viaGraph) {
+    return {
+      usdPerHour: viaGraph.value,
+      month: viaGraph.date.slice(0, 7),
+      fetchedAt: new Date().toISOString(),
+      source: "FRED AHETPI (fredgraph)",
+    };
+  }
+  throw new Error(
+    `AHETPI unavailable via API${apiError ? ` (${apiError})` : ""} and fredgraph — cannot compute W`
   );
-  return Object.fromEntries(keys.map((k, i) => [k, results[i]])) as Record<
-    FredSeriesKey,
-    SeriesObs | null
-  >;
 }
-
-/** Index a series to its 2014 base using the most recent value on/before dateMs. */
-export function indexedAsOf(s: SeriesObs | null, dateMs: number): IndexedSeries | null {
-  if (!s || s.obs.length === 0) return null;
-  let chosen = s.obs[0];
-  for (const o of s.obs) {
-    if (o.ms <= dateMs) chosen = o;
-    else break;
-  }
-  return {
-    key: s.key,
-    id: s.spec.id,
-    label: s.spec.label,
-    unit: s.spec.unit,
-    source: s.spec.source,
-    sourceUrl: s.spec.sourceUrl,
-    baseValue: s.baseValue,
-    baseDate: s.baseDate,
-    latestValue: chosen.value,
-    latestDate: new Date(chosen.ms).toISOString().split("T")[0],
-    indexed: (chosen.value / s.baseValue) * 100,
-  };
-}
-
-export { hasKey as fredKeyConfigured };
