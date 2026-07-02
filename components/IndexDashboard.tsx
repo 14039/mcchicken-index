@@ -80,8 +80,12 @@ export default function IndexDashboard() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [error, setError] = useState(false);
   const [range, setRange] = useState<Range>("3M");
+  // Computed client-side after mount: a build-time value would go stale in
+  // the prerendered HTML and guarantee a hydration mismatch.
+  const [nextSurvey, setNextSurvey] = useState("—");
 
   useEffect(() => {
+    setNextSurvey(nextSurveyLabel());
     let cancelled = false;
     fetch("/api/mcchicken?range=ALL")
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
@@ -199,6 +203,13 @@ export default function IndexDashboard() {
           valueFormat={(v) => v.toFixed(1)}
           extendToNow
           height={320}
+          emptyMessage={
+            error
+              ? "Live data unavailable — try again shortly."
+              : history.length > 0
+                ? "No survey points in this range."
+                : undefined
+          }
         />
       </section>
 
@@ -229,7 +240,7 @@ export default function IndexDashboard() {
           value={latest ? `$${latest.wageUsdPerHour.toFixed(2)}` : "—"}
           sub={latest ? `per hour · ${latest.wageMonth} · BLS via FRED` : "BLS via FRED"}
         />
-        <Chip label="Next survey" value={nextSurveyLabel()} sub="Mon & Thu · 08:00 UTC" />
+        <Chip label="Next survey" value={nextSurvey} sub="Mon & Thu · 08:00 UTC" />
       </section>
 
       {/* ── Latest run ── */}
@@ -240,7 +251,9 @@ export default function IndexDashboard() {
             {data.lastRun.reason ? ` (${data.lastRun.reason})` : ""}
           </span>
           {data.heldPending && <span className="accent">· a newer reading is held for review</span>}
-          <a href={`/api/mcchicken/evidence?date=${data.lastRun.surveyDate}`}>evidence →</a>
+          {data.lastRun.status !== "error" && (
+            <a href={`/api/mcchicken/evidence?date=${data.lastRun.surveyDate}`}>evidence →</a>
+          )}
         </div>
       )}
 

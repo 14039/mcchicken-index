@@ -37,6 +37,8 @@ interface Props {
   valueFormat?: (v: number) => string;
   /** Extend the last step to "now" (true for live survey series). */
   extendToNow?: boolean;
+  /** Honest empty-state text (differs for "no data yet" vs "fetch failed"). */
+  emptyMessage?: string;
 }
 
 const AXIS = "rgba(230,232,240,0.35)";
@@ -63,7 +65,7 @@ function niceTicks(min: number, max: number, target = 5): number[] {
 /** Calendar-aligned x ticks: month starts or year starts depending on span. */
 function timeTicks(t0: number, t1: number): { t: number; label: string }[] {
   const spanDays = (t1 - t0) / 86_400_000;
-  const out: { t: number; label: string }[] = [];
+  let out: { t: number; label: string }[] = [];
   const d0 = new Date(t0);
   if (spanDays > 900) {
     for (let y = d0.getUTCFullYear() + 1; ; y++) {
@@ -93,7 +95,13 @@ function timeTicks(t0: number, t1: number): { t: number; label: string }[] {
       });
     }
   }
-  return out.slice(0, 8);
+  // Thin evenly to ≤8 ticks — dropping the tail would leave the most recent
+  // stretch of long ranges unlabeled.
+  if (out.length > 8) {
+    const step = Math.ceil(out.length / 8);
+    out = out.filter((_, i) => i % step === 0);
+  }
+  return out;
 }
 
 export default function StepChart({
@@ -104,6 +112,7 @@ export default function StepChart({
   xLabel,
   valueFormat = (v) => v.toFixed(1),
   extendToNow = false,
+  emptyMessage = "No published survey data yet — the instrument runs Mon & Thu 08:00 UTC.",
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(720);
@@ -131,8 +140,8 @@ export default function StepChart({
     let t1 = Math.max(...times);
     if (extendToNow) t1 = Math.max(t1, Date.now());
     if (t1 - t0 < 86_400_000 * 5) {
-      t0 -= 86_400_000 * 3;
-      t1 += 86_400_000 * 3;
+      // Widen sparse domains backwards only — never chart into the future.
+      t0 -= 86_400_000 * 6;
     }
     const values = all.map((p) => p.value);
     let vMin = Math.min(...values);
@@ -163,7 +172,7 @@ export default function StepChart({
   if (!model) {
     return (
       <div ref={wrapRef} className="chart-empty">
-        No published survey data yet — the instrument runs Mon &amp; Thu 08:00 UTC.
+        {emptyMessage}
       </div>
     );
   }

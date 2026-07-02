@@ -75,6 +75,7 @@ export type MetroStatus =
   | "discarded_citation" // fail-closed re-fetch could not confirm the price
   | "discarded_stale" // page_updated older than 45 days
   | "discarded_band" // outside $1.50–$6.00 hard bounds
+  | "discarded_promo" // promo_suspected — LTO/coupon prices are excluded (rule 1)
   | "missing"; // model returned null / nothing usable and nothing to carry
 
 export interface CitationCheck {

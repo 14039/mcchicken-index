@@ -39,7 +39,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const latest = dates.length ? await getEvidence(dates[dates.length - 1]) : null;
     return NextResponse.json(
       { dates, latest },
-      { headers: { ...CORS, "Cache-Control": "public, max-age=900" } }
+      { headers: { ...CORS, "Cache-Control": "public, max-age=3600" } }
     );
   } catch (e) {
     return NextResponse.json(

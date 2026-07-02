@@ -9,12 +9,22 @@ import type { CitationCheck } from "./types";
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
-/** Price string variants to search for: "2.10", "2.1", "$2.10". */
-function priceVariants(price: number): string[] {
-  const fixed = price.toFixed(2);
-  const variants = new Set<string>([fixed]);
-  if (fixed.endsWith("0")) variants.add(fixed.slice(0, -1)); // 2.10 → 2.1
-  return [...variants];
+/**
+ * Digit-bounded matchers for the reported price ("2.10" also as "2.1").
+ * Boundaries are required so $2.10 cannot be "confirmed" by a page that only
+ * contains 2.19, 12.10, or "2.1k reviews" — without them the fail-closed
+ * check is effectively fail-open for trailing-zero prices.
+ */
+function priceMatchers(price: number): RegExp[] {
+  const fixed = price.toFixed(2).replace(".", "\\.");
+  const matchers = [new RegExp(`(^|[^\\d.])${fixed}(?![\\d])`)];
+  if (price.toFixed(2).endsWith("0")) {
+    // Trailing-zero form ("$2.1") must be dollar-anchored — a bare "2.1"
+    // matches counters like "2.1k reviews" and is too weak as price evidence.
+    const stripped = price.toFixed(2).slice(0, -1).replace(".", "\\.");
+    matchers.push(new RegExp(`\\$${stripped}(?![\\d])`));
+  }
+  return matchers;
 }
 
 export async function verifyCitation(url: string, price: number): Promise<CitationCheck> {
@@ -29,7 +39,7 @@ export async function verifyCitation(url: string, price: number): Promise<Citati
     }
     const text = await res.text();
     const mentionsItem = /mcchicken/i.test(text);
-    const hasPrice = priceVariants(price).some((v) => text.includes(v));
+    const hasPrice = priceMatchers(price).some((re) => re.test(text));
     return {
       fetched: true,
       priceFound: mentionsItem && hasPrice,

@@ -25,7 +25,7 @@ export async function GET(): Promise<NextResponse> {
     ]);
     return NextResponse.json(
       { count: entries.length, entries, regimeEvents },
-      { headers: { ...CORS, "Cache-Control": "public, max-age=900" } }
+      { headers: { ...CORS, "Cache-Control": "public, max-age=3600" } }
     );
   } catch (e) {
     return NextResponse.json(

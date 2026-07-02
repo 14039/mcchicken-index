@@ -261,7 +261,11 @@ export async function processPanel(
       const outOfBand =
         obs.price < METRO_PRICE_MIN_USD || obs.price > METRO_PRICE_MAX_USD;
 
-      if (blocked) {
+      if (obs.price_type === "promo_suspected") {
+        // Rule 1: LTOs/coupons are excluded — value_menu_listed IS the menu
+        // price, but a suspected promo price never enters the median.
+        result = { ...base, status: "discarded_promo" };
+      } else if (blocked) {
         result = { ...base, status: "discarded_blocklist" };
       } else if (stale) {
         result = { ...base, status: "discarded_stale" };
@@ -293,6 +297,7 @@ export async function processPanel(
               result = { ...base, status: "verified", price, citationCheck: citation };
             } else if (
               metroState.hold &&
+              metroState.hold.date < surveyDate && // "next run" — a same-date re-run must not self-confirm
               Math.abs(price / metroState.hold.price - 1) * 100 <=
                 METRO_HOLD_CONFIRM_PCT
             ) {
@@ -337,11 +342,18 @@ export async function processPanel(
     .slice(0, CARRY_FORWARD_MAX);
 
   for (const { r, i, s } of carryCandidates) {
+    // A carried metro with an active two-strike hold stays visibly held in
+    // the evidence — the carry uses its last VERIFIED value, not the held one.
+    const holdNote =
+      r.status === "held" && s!.hold
+        ? `[two-strike hold active: ${s!.hold.reason}]`
+        : null;
     results[i] = {
       ...r,
       status: "carried",
       price: s!.lastVerifiedPrice,
       carriedFromDate: s!.lastVerifiedDate,
+      notes: holdNote ? (r.notes ? `${r.notes} ${holdNote}` : holdNote) : r.notes,
     };
   }
 

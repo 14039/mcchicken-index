@@ -28,6 +28,7 @@ import {
   appendEvidence,
   appendRunLog,
   getCpiSeries,
+  getHeld,
   getLatestPoint,
   getPanelState,
   getSpecState,
@@ -66,9 +67,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const surveyDate = new Date().toISOString().slice(0, 10);
   const manifest = manifestJson as PanelManifest;
 
+  let lockAcquired = false;
   if (!dry && !force) {
-    const locked = await acquireRunLock(surveyDate);
-    if (!locked) {
+    lockAcquired = await acquireRunLock(surveyDate);
+    if (!lockAcquired) {
       return NextResponse.json({ surveyDate, status: "skipped", reason: "already ran (lock held)" });
     }
   }
@@ -128,12 +130,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         runStatus = "held";
         runReason = holdReason;
         if (!dry) {
-          await setHeld({
-            point: computed.point,
-            reason: holdReason,
-            priorMciMinutes: priorPoint?.mciMinutes ?? NaN,
-            createdAt: new Date().toISOString(),
-          });
+          // Never clobber an unactioned hold: the earlier held point would
+          // become unrecoverable through the sign-off flow.
+          const existingHeld = await getHeld();
+          if (existingHeld) {
+            runReason = `${holdReason}; NOT queued — sign-off already pending for ${existingHeld.point.surveyDate}`;
+          } else {
+            await setHeld({
+              point: computed.point,
+              reason: holdReason,
+              priorMciMinutes: priorPoint?.mciMinutes ?? NaN,
+              createdAt: new Date().toISOString(),
+            });
+          }
         }
       } else {
         runStatus = "published";
@@ -258,8 +267,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         reason: message,
         durationMs: Date.now() - started,
       }).catch(() => {});
-      // Release the lock so a manual retry can run the same day.
-      await releaseRunLock(surveyDate).catch(() => {});
+      // Release the lock so a manual retry can run the same day — but only
+      // if this invocation acquired it (a force run must not free another's).
+      if (lockAcquired) await releaseRunLock(surveyDate).catch(() => {});
     }
     return NextResponse.json(
       { surveyDate, status: "error", error: message },
